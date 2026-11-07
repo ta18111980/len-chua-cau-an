@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#2a1a2e">
+<title>Lên Chùa Cầu An</title>
+<style>
+/* =========================================================
+   GIAO DIỆN (CSS)
+   ========================================================= */
+:root{--gold:#f3c969;--gold2:#e2b866;--red:#b3261e;--red2:#8e1f15;--ink:#3a2412;--paper:#fbf1dc;--lam:#5b7fa8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#1d1424;color:#fff;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  touch-action:none;user-select:none;-webkit-user-select:none;overscroll-behavior:none}
+input,textarea{user-select:text;-webkit-user-select:text;touch-action:auto;font-family:inherit}
+button{font-family:inherit;cursor:pointer}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;outline:none}
+.shake{animation:shake .55s}
+@keyframes shake{0%,100%{transform:translate(0,0)}15%{transform:translate(-5px,2px)}30%{transform:translate(5px,-2px)}45%{transform:translate(-4px,1px)}60%{transform:translate(3px,-1px)}80%{transform:translate(-1px,1px)}}
+.serif{font-family:"Times New Roman","Times New Roman",serif}
+
+/* ---- Màn chào ---- */
+#splash{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;
+  background:radial-gradient(ellipse at 50% 30%,rgba(255,170,100,.55),rgba(120,50,70,.85) 55%,rgba(25,16,36,.97));transition:opacity .7s}
+#splash.hide{opacity:0;pointer-events:none}
+#splash .lotus{width:110px;height:70px;margin-bottom:6px;filter:drop-shadow(0 4px 14px rgba(255,190,120,.6))}
+#splash h1{font-family:"Times New Roman","Times New Roman",serif;font-size:clamp(34px,9vw,60px);margin:0;color:#ffe7b0;letter-spacing:1px;text-shadow:0 3px 18px rgba(120,30,10,.7)}
+#splash .sub{opacity:.9;margin:8px 0 22px;font-size:15px}
+#splash label{font-size:14px;opacity:.85;display:block;margin-bottom:6px}
+#nameInput{width:min(300px,80vw);padding:13px 16px;border-radius:14px;border:2px solid var(--gold2);background:rgba(255,248,234,.95);color:var(--ink);font-size:17px;text-align:center;outline:none}
+#enterBtn{margin-top:18px;min-width:220px;padding:16px 28px;font-size:20px;font-weight:700;border-radius:40px;border:2px solid #ffe3a3;color:#fff;
+  background:linear-gradient(#e2573f,#9f2318);box-shadow:0 8px 30px rgba(255,120,60,.45)}
+#enterBtn:disabled{filter:grayscale(.6) brightness(.8)}
+#loadMsg{font-size:13px;opacity:.75;margin-top:12px;min-height:18px}
+#splash .note{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 14px);left:0;right:0;font-size:11.5px;opacity:.65;padding:0 16px}
+
+/* ---- HUD ---- */
+#hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 10px) 12px 0;display:none;justify-content:space-between;align-items:flex-start;gap:8px;pointer-events:none;z-index:10}
+.pill{background:rgba(30,18,24,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(243,201,105,.35);border-radius:16px;padding:7px 12px;font-size:12.5px;line-height:1.4;max-width:62vw}
+.pill b{color:var(--gold)}
+.icons{display:flex;gap:8px;pointer-events:auto}
+.ibtn{width:44px;height:44px;border-radius:50%;border:1px solid rgba(243,201,105,.5);background:rgba(30,18,24,.6);color:#fff;font-size:20px;display:grid;place-items:center;padding:0}
+#deskHint{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;font-size:12px;opacity:.7;z-index:9;display:none;background:rgba(0,0,0,.3);padding:5px 12px;border-radius:12px;pointer-events:none;white-space:nowrap}
+
+/* ---- Cần điều khiển ---- */
+#joyZone{position:fixed;left:0;bottom:0;width:50%;height:46%;z-index:6;touch-action:none;display:none}
+#joyBase{position:fixed;width:124px;height:124px;border-radius:50%;border:2px solid rgba(255,230,180,.55);background:rgba(255,240,210,.12);pointer-events:none;transform:translate(-50%,-50%);z-index:7;display:none;transition:opacity .2s}
+#joyKnob{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:rgba(255,226,170,.8);box-shadow:0 2px 10px rgba(0,0,0,.3)}
+
+/* ---- Nút hành động ---- */
+#actionBtn{position:fixed;right:16px;bottom:calc(env(safe-area-inset-bottom) + 30px);z-index:12;min-width:150px;height:70px;padding:0 22px;border-radius:40px;border:2px solid #ffe3a3;
+  background:linear-gradient(#e2573f,#a3231a);color:#fff;font-size:19px;font-weight:700;box-shadow:0 6px 24px rgba(255,120,60,.55);display:none;align-items:center;justify-content:center;gap:8px;animation:pulse 1.6s infinite}
+#actionBtn .ic{font-size:26px}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+/* ---- Thông báo nhỏ ---- */
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 74px);transform:translate(-50%,-10px);z-index:30;background:rgba(255,248,234,.96);color:var(--ink);padding:10px 16px;border-radius:16px;font-size:14px;max-width:88vw;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.3);opacity:0;transition:all .35s;pointer-events:none;border:1px solid var(--gold2)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ---- Bong bóng chữ của khách AI ---- */
+.bubble{position:fixed;left:0;top:0;z-index:4;background:#fffaf0;color:#5a2a14;padding:5px 10px;border-radius:14px;font-size:12.5px;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.25);pointer-events:none;opacity:0;transition:opacity .35s;will-change:transform}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:#fffaf0}
+.bubble.on{opacity:.95}
+
+/* ---- Bảng hoạt động (bottom sheet) ---- */
+#panel{position:fixed;left:0;right:0;bottom:0;z-index:20;display:none;justify-content:center;padding:0 10px calc(env(safe-area-inset-bottom) + 10px);pointer-events:none}
+#sheet{pointer-events:auto;width:100%;max-width:520px;background:linear-gradient(#fff8ea,#f5e3bf);color:var(--ink);border-radius:22px 22px 18px 18px;padding:18px 18px 16px;box-shadow:0 -8px 40px rgba(0,0,0,.4);max-height:66vh;overflow:auto;position:relative;border:2px solid var(--gold2);animation:up .3s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+#sheet h3{margin:0 0 6px;font-family:"Times New Roman","Times New Roman",serif;color:var(--red2);font-size:22px;padding-right:36px}
+#sheet p{margin:6px 0;font-size:15px;line-height:1.45}
+.small{font-size:13px!important;opacity:.8}
+.tiny{font-size:11.5px!important;opacity:.7;text-align:center}
+.x{position:absolute;right:10px;top:10px;width:36px;height:36px;border-radius:50%;border:1px solid #d9b77a;background:#fff4dc;color:var(--ink);font-size:17px;padding:0}
+.row{display:flex;gap:10px;margin-top:10px}.row>*{flex:1}
+.btn{padding:13px 14px;border-radius:14px;border:2px solid var(--gold2);background:#fff3d6;color:var(--ink);font-size:16px;font-weight:600}
+.btn.primary{background:linear-gradient(#e2573f,#a3231a);color:#fff;border-color:#f6c77a}
+.btn.big{font-size:20px;padding:18px}
+.btn:active{transform:scale(.97)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{padding:7px 11px;border-radius:20px;border:1px solid #d9b77a;background:#fff;color:var(--ink);font-size:13px}
+textarea{width:100%;border-radius:12px;border:2px solid #d9b77a;padding:10px;font-size:16px;resize:none;background:#fffdf7;color:var(--ink);outline:none}
+.count{text-align:right;font-size:12px;opacity:.7}
+.seg{display:flex;gap:8px;margin:8px 0}
+.seg button{flex:1;padding:10px 6px;border-radius:12px;border:2px solid #d9b77a;background:#fff;color:var(--ink);font-size:13.5px;line-height:1.3}
+.seg button.on{background:#ffe2b0;border-color:var(--red);font-weight:700}
+.err{color:#b3261e;font-size:13px;min-height:18px}
+.result{text-align:center}
+.result .score{font-size:56px;font-weight:800;color:var(--red2);font-family:"Times New Roman",serif;line-height:1}
+.prayCard{background:linear-gradient(#b8231a,#8e1a12);color:#ffe9b8;border:2px solid var(--gold);border-radius:12px;padding:12px 14px;font-family:"Times New Roman",serif;font-style:italic;font-size:16px;margin:8px 0;word-break:break-word}
+
+/* Thỉnh chuông */
+.bellpad{position:relative;height:200px;margin:8px auto;width:200px;touch-action:none}
+.bg-target{position:absolute;left:50%;top:50%;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;border:5px solid #d9a23a;background:radial-gradient(#ffe7b0,#f1c46a);box-shadow:inset 0 0 18px rgba(140,80,10,.5)}
+.bg-ring{position:absolute;left:50%;top:50%;width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;border:4px solid #ff7a3a;box-shadow:0 0 18px #ffb070,inset 0 0 12px #ffb070;pointer-events:none}
+.bg-label{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font-weight:800;color:var(--red2);font-size:18px;pointer-events:none}
+.dots{text-align:center;font-size:22px;letter-spacing:8px;color:var(--red2)}
+
+/* Gõ mõ */
+.mo-wrap{position:relative;width:190px;height:190px;margin:4px auto;touch-action:none}
+.mo-btn{position:absolute;left:50%;top:50%;width:132px;height:112px;margin:-56px 0 0 -66px;border-radius:50% 50% 46% 46%;border:3px solid #5a2a10;
+  background:radial-gradient(circle at 40% 35%,#d48a44,#9a4f1e 60%,#6a3210);box-shadow:0 6px 0 #4a200a,0 10px 20px rgba(0,0,0,.3);color:#ffe2b0;font-weight:800;font-size:15px;letter-spacing:2px;padding-top:40px}
+.mo-btn::before{content:"";position:absolute;left:22%;right:22%;top:46%;height:7px;border-radius:4px;background:#3a1806}
+.mo-btn:active{transform:translateY(3px);box-shadow:0 3px 0 #4a200a}
+.mo-ring{position:absolute;left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;border:4px solid #e0a030;pointer-events:none;box-shadow:0 0 12px #ffc070}
+.mo-fb{text-align:center;font-weight:800;font-size:20px;min-height:28px;color:var(--red2)}
+.mo-stats{display:flex;justify-content:space-around;font-size:13px;margin-top:4px}
+.mo-stats b{color:var(--red2)}
+
+/* Xin quẻ */
+.tube-wrap{height:210px;display:flex;justify-content:center;align-items:flex-end;position:relative;margin:4px 0;touch-action:none}
+.tube{position:relative;width:90px;height:190px;transform-origin:50% 92%}
+.tube.shaking{animation:tubeShake .13s infinite}
+@keyframes tubeShake{0%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}100%{transform:rotate(-10deg)}}
+.tube-body{position:absolute;bottom:0;left:0;right:0;height:124px;border-radius:12px 12px 18px 18px;background:linear-gradient(90deg,#6e2410,#c4562c 42%,#83301a);border:3px solid #e9b85a;color:#ffe3a3;display:flex;align-items:center;justify-content:center;font-family:"Times New Roman",serif;font-weight:700;font-size:15px;text-align:center;line-height:1.2}
+.stk{position:absolute;bottom:84px;width:7px;height:96px;background:linear-gradient(#f0cf88,#b88a3a);border-radius:3px 3px 0 0;transform-origin:50% 100%}
+.stk::before{content:"";position:absolute;top:0;left:0;right:0;height:16px;background:#c0302a;border-radius:3px 3px 0 0}
+.fall{position:absolute;width:8px;height:104px;background:linear-gradient(#f0cf88,#b88a3a);border-radius:3px;left:calc(50% - 4px);bottom:110px;opacity:0}
+.fall::before{content:"";position:absolute;top:0;left:0;right:0;height:16px;background:#c0302a;border-radius:3px}
+.fall.go{animation:fall 1s ease-in forwards}
+@keyframes fall{0%{opacity:1;transform:translate(0,0) rotate(0)}45%{opacity:1;transform:translate(40px,-60px) rotate(60deg)}100%{opacity:1;transform:translate(95px,70px) rotate(92deg)}}
+.bar{height:10px;border-radius:6px;background:#ecd3a4;overflow:hidden;margin:6px 0}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#e2573f,#f3c969)}
+.que{background:linear-gradient(#b8231a,#8a1810);color:#ffe9b8;border:3px solid var(--gold);border-radius:16px;padding:16px;text-align:center;margin:6px 0;animation:up .4s}
+.que .no{font-family:"Times New Roman",serif;font-size:24px;color:#ffd77a;font-weight:700}
+.que .msg{font-size:17px;line-height:1.5;margin:10px 0;font-family:"Times New Roman",serif}
+
+/* ---- Hộp thoại (sổ, chia sẻ, hướng dẫn) ---- */
+.modal{position:fixed;inset:0;z-index:40;background:rgba(15,8,20,.6);display:none;align-items:center;justify-content:center;padding:16px}
+.modal.on{display:flex}
+.card{width:100%;max-width:480px;max-height:88vh;overflow:auto;background:linear-gradient(#fff8ea,#f5e3bf);color:var(--ink);border-radius:20px;padding:18px;border:2px solid var(--gold2);position:relative;box-shadow:0 10px 40px rgba(0,0,0,.5);animation:up .3s}
+.card h2{margin:0 0 8px;font-family:"Times New Roman",serif;color:var(--red2);font-size:24px;padding-right:36px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.stat{background:#fff;border:1px solid #e6c88e;border-radius:12px;padding:8px;text-align:center}
+.stat b{display:block;font-size:24px;color:var(--red2);font-family:"Times New Roman",serif}
+.stat span{font-size:11.5px;opacity:.8}
+.list{margin:6px 0 10px;padding:0;list-style:none}
+.list li{background:#fff;border-left:4px solid var(--red);border-radius:8px;padding:8px 10px;margin:6px 0;font-size:14px;line-height:1.4;word-break:break-word}
+.list li small{display:block;opacity:.6;font-size:11.5px;margin-top:2px}
+.empty{opacity:.6;font-size:13px;font-style:italic}
+#shareImg{width:100%;border-radius:12px;display:block;border:1px solid #d9b77a;background:#2b1a2e;aspect-ratio:1080/1350}
+.tut-ic{font-size:54px;text-align:center;margin:6px 0}
+.tut-dots{text-align:center;letter-spacing:6px;color:var(--red2);margin:6px 0}
+</style>
+</head>
+<body>
+<canvas id="c" tabindex="0"></canvas>
+
+<!-- Màn chào -->
+<div id="splash">
+  <svg class="lotus" viewBox="0 0 120 70" aria-hidden="true">
+    <g fill="#f6a7b9" stroke="#b8475f" stroke-width="1.5">
+      <path d="M60 8 C72 24 72 44 60 62 C48 44 48 24 60 8Z"/>
+      <path d="M60 62 C50 44 36 34 18 30 C22 50 38 62 60 62Z"/>
+      <path d="M60 62 C70 44 84 34 102 30 C98 50 82 62 60 62Z"/>
+      <path d="M60 62 C44 56 22 54 6 48 C16 62 38 66 60 62Z" fill="#f08aa2"/>
+      <path d="M60 62 C76 56 98 54 114 48 C104 62 82 66 60 62Z" fill="#f08aa2"/>
+    </g>
+  </svg>
+  <h1>Lên Chùa Cầu An</h1>
+  <div class="sub">Chùa An Lạc · một buổi hoàng hôn thanh tịnh</div>
+  <label for="nameInput">Tên của bạn</label>
+  <input id="nameInput" maxlength="20" placeholder="Ví dụ: Minh An" autocomplete="off">
+  <button id="enterBtn" disabled>Đang mở cổng chùa…</button>
+  <div id="loadMsg"></div>
+  <div class="note">Trò chơi thư giãn · không đăng nhập · không thu thập dữ liệu · không quảng cáo · dữ liệu chỉ lưu trên máy bạn</div>
+</div>
+
+<!-- HUD -->
+<div id="hud">
+  <div class="pill" id="hudInfo">Hôm nay có <b id="visitCount">0</b> người lên chùa cầu an<br><span id="hudName"></span> · Tâm an cao nhất: <b id="hudBest">0</b></div>
+  <div class="icons">
+    <button class="ibtn" id="muteBtn" title="Bật/tắt tiếng" aria-label="Bật tắt tiếng">🔊</button>
+    <button class="ibtn" id="bookBtn" title="Sổ cầu an của tôi" aria-label="Sổ cầu an">📖</button>
+    <button class="ibtn" id="shareBtn" title="Chia sẻ" aria-label="Chia sẻ">📤</button>
+  </div>
+</div>
+<div id="deskHint">WASD / phím mũi tên để đi · kéo chuột để xoay · E hoặc Space để hành động</div>
+
+<div id="joyZone"></div>
+<div id="joyBase"><div id="joyKnob"></div></div>
+<button id="actionBtn"><span class="ic" id="actIcon">🕯️</span><span id="actLabel">Thắp hương</span></button>
+<div id="toast"></div>
+<div id="bubbles"></div>
+
+<div id="panel"><div id="sheet"></div></div>
+
+<!-- Sổ cầu an -->
+<div class="modal" id="bookModal"><div class="card" id="bookCard"></div></div>
+<!-- Chia sẻ -->
+<div class="modal" id="shareModal"><div class="card">
+  <button class="x" data-close-share>✕</button>
+  <h2>Chia sẻ</h2>
+  <img id="shareImg" alt="Ảnh chia sẻ">
+  <div class="row"><button class="btn primary" id="doShare">📤 Chia sẻ</button><button class="btn" id="doDownload">⬇️ Tải ảnh</button></div>
+  <p class="tiny" style="margin-top:8px">Ảnh được tạo ngay trên máy bạn, không gửi đi đâu cả.</p>
+</div></div>
+<!-- Hướng dẫn -->
+<div class="modal" id="tutModal"><div class="card" id="tutCard"></div></div>
+
+<script>
+/* Dự phòng: báo nếu thư viện 3D tải quá lâu (cần mạng ở lần mở đầu) */
+setTimeout(function(){ if(!window.__chuaReady){ var m=document.getElementById('loadMsg'); if(m) m.textContent='Đang tải thư viện 3D hơi lâu… Lần đầu mở cần có kết nối mạng.'; } }, 8000);
+document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
+</script>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* =========================================================
+   0. TIỆN ÍCH CHUNG
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const rand = (a, b) => a + Math.random() * (b - a);
+const randi = (a, b) => Math.floor(rand(a, b + 1));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const PI = Math.PI, TAU = Math.PI * 2;
+const isTouch = matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window && navigator.maxTouchPoints > 0);
+function angLerp(a, b, t) { let d = ((b - a + PI) % TAU + TAU) % TAU - PI; return a + d * t; }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function fmtDate(ts) { const d = new Date(ts); return d.toLocaleDateString('vi-VN') + ' · ' + d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }); }
+let toastTimer = 0;
+function toast(msg, ms = 2800) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), ms); }
+function vibrate(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+
+/* =========================================================
+   1. LƯU TRÊN MÁY (localStorage)
+   ========================================================= */
+const SAVE_KEY = 'lenChuaCauAn.v1';
+const Save = {
+  data: { name: '', incense: 0, bells: 0, mo: 0, best: 0, prayers: [], fortunes: [], tutorial: false, muted: false },
+  load() {
+    try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); if (s && typeof s === 'object') Object.assign(this.data, s); } catch (e) {}
+    if (!Array.isArray(this.data.prayers)) this.data.prayers = [];
+    if (!Array.isArray(this.data.fortunes)) this.data.fortunes = [];
+  },
+  save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(this.data)); } catch (e) {} }
+};
+Save.load();
+
+/* =========================================================
+   2. ÂM THANH (Web Audio – tự tạo, không tải tệp)
+   ========================================================= */
+const Sound = (() => {
+  let ctx = null, master, sfx, amb, rev, noiseBuf;
+  let windG, windF, leafG, chantG, voiceG, f1, chantOscs = [];
+  let nextBird = 0, nextCricket = 0, nextBell = 0, nextSyl = 0, syl = 0, ctlT = 0, gustT = 0;
+  let muted = !!Save.data.muted, bgMo = true;
+  const SYL = 60 / 72;
+  const PHRASE = [0, 0, 0, 0, -2, -5, null, null]; // "Nam mô A Di Đà Phật" + nghỉ
+
+  function makeNoise(sec) { const len = (ctx.sampleRate * sec) | 0; const b = ctx.createBuffer(1, len, ctx.sampleRate); const d = b.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1; return b; }
+  function makeIR(sec) { const len = (ctx.sampleRate * sec) | 0; const b = ctx.createBuffer(2, len, ctx.sampleRate); for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2); } return b; }
+  function gain(v, to) { const g = ctx.createGain(); g.gain.value = v; if (to) g.connect(to); return g; }
+  function filt(type, f, q, to) { const b = ctx.createBiquadFilter(); b.type = type; b.frequency.value = f; if (q) b.Q.value = q; if (to) b.connect(to); return b; }
+  function envel(g, t, peak, a, dec) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + dec); }
+
+  function build() {
+    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -12; comp.ratio.value = 3; comp.connect(ctx.destination);
+    master = gain(muted ? 0 : 1, comp);
+    sfx = gain(0.9, master); amb = gain(0.85, master);
+    rev = ctx.createConvolver(); rev.buffer = makeIR(3.2); rev.connect(gain(0.45, master));
+    noiseBuf = makeNoise(3);
+    // Gió
+    const n1 = ctx.createBufferSource(); n1.buffer = noiseBuf; n1.loop = true;
+    windG = gain(0.04, amb); windF = filt('bandpass', 380, 0.6, windG); n1.connect(windF); n1.start();
+    // Lá xào xạc
+    const n2 = ctx.createBufferSource(); n2.buffer = noiseBuf; n2.loop = true; n2.playbackRate.value = 0.83;
+    leafG = gain(0.0, amb); const hp = filt('highpass', 3200, 0.5, leafG); n2.connect(hp); n2.start(0, 1.3);
+    // Tiếng tụng kinh rì rầm xa xa
+    chantG = gain(0.02, amb); chantG.connect(rev);
+    const lp = filt('lowpass', 1300, 0.5, chantG);
+    voiceG = gain(0, null);
+    f1 = filt('bandpass', 650, 4, lp); const f2 = filt('bandpass', 1100, 5, lp); const f0 = filt('lowpass', 400, 0.7, lp);
+    voiceG.connect(f1); voiceG.connect(f2); voiceG.connect(f0);
+    [[1, 0], [1.006, 0], [0.5, 0], [0.997, 0]].forEach(([m]) => { const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = 110 * m; o._m = m; o.connect(voiceG); o.start(); chantOscs.push(o); });
+    const t = ctx.currentTime; nextBird = t + 1.5; nextCricket = t + 3; nextBell = t + 14; nextSyl = t + 0.8;
+  }
+  function init() {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    if (!ctx) { try { ctx = new AC(); build(); } catch (e) { ctx = null; return; } }
+    if (ctx.state === 'suspended') ctx.resume();
+  }
+  // Chuông đồng: nhiều bồi âm không hài hoà, tắt dần chậm
+  function bell(strength = 1, base = 98, distant = false) {
+    if (!ctx) return; const t = ctx.currentTime + 0.01;
+    const out = gain(distant ? 0.16 : 0.5 * (0.6 + 0.4 * strength));
+    if (distant) { const l = filt('lowpass', 800, 0.5, amb); out.connect(l); out.connect(rev); } else { out.connect(sfx); out.connect(rev); }
+    const R = [0.5, 1, 1.183, 1.506, 2, 2.514, 2.662, 3.011, 4.166, 5.433], A = [.55, 1, .5, .45, .4, .22, .2, .14, .08, .05], D = [11, 8, 5.5, 4.5, 3.8, 2.8, 2.4, 1.9, 1.2, 0.8];
+    const len = distant ? 0.7 : (0.45 + 0.6 * strength);
+    for (let i = 0; i < R.length; i++) {
+      for (let k = 0; k < (i < 2 ? 2 : 1); k++) {
+        const o = ctx.createOscillator(); o.frequency.value = base * R[i] * (1 + (k ? 0.0035 : 0) + (Math.random() - .5) * 0.002);
+        const g = gain(0); g.connect(out); o.connect(g); envel(g, t, A[i] * 0.22, 0.006, D[i] * len); o.start(t); o.stop(t + D[i] * len + 0.2);
+      }
+    }
+    const n = ctx.createBufferSource(); n.buffer = noiseBuf; const ng = gain(0); const bp = filt('bandpass', 500, 1, ng); ng.connect(out); n.connect(bp); envel(ng, t, 0.35, 0.003, 0.09); n.start(t, Math.random() * 2, 0.2);
+  }
+  // Tiếng mõ gỗ
+  function knock(when, vol = 0.6, distant = false) {
+    if (!ctx) return; const t = when || ctx.currentTime;
+    const out = gain(vol); if (distant) { const l = filt('lowpass', 1100, 0.5, amb); out.connect(l); } else { out.connect(sfx); const rg = gain(0.25, rev); out.connect(rg); }
+    const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(640, t); o.frequency.exponentialRampToValueAtTime(390, t + 0.06);
+    const g = gain(0, out); o.connect(g); envel(g, t, 0.9, 0.002, 0.14); o.start(t); o.stop(t + 0.2);
+    const o2 = ctx.createOscillator(); o2.type = 'triangle'; o2.frequency.value = 1280; const g2 = gain(0, out); o2.connect(g2); envel(g2, t, 0.25, 0.001, 0.05); o2.start(t); o2.stop(t + 0.1);
+    const n = ctx.createBufferSource(); n.buffer = noiseBuf; const ng = gain(0, out); const bp = filt('bandpass', 2200, 1.5, ng); n.connect(bp); envel(ng, t, 0.3, 0.001, 0.03); n.start(t, Math.random() * 2, 0.06);
+  }
+  function pulse(when) { if (!ctx) return; const o = ctx.createOscillator(); o.frequency.value = 196; const g = gain(0, sfx); o.connect(g); envel(g, when, 0.07, 0.01, 0.25); o.start(when); o.stop(when + 0.3); }
+  function chime() { if (!ctx) return; const t = ctx.currentTime + 0.01; [1318, 1975, 2637].forEach((f, i) => { const o = ctx.createOscillator(); o.frequency.value = f; const g = gain(0, sfx); g.connect(rev); o.connect(g); envel(g, t + i * 0.09, 0.09 / (i + 1), 0.004, 2.4); o.start(t + i * 0.09); o.stop(t + 3); }); }
+  function rattle() { if (!ctx) return; const t = ctx.currentTime; for (let i = 0; i < 2; i++) { const tt = t + i * 0.035; const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = rand(1500, 2300); const g = gain(0, sfx); o.connect(g); envel(g, tt, 0.12, 0.001, 0.03); o.start(tt); o.stop(tt + 0.06); } }
+  function whoosh() { if (!ctx) return; const t = ctx.currentTime; const n = ctx.createBufferSource(); n.buffer = noiseBuf; const g = gain(0, sfx); const bp = filt('bandpass', 400, 2, g); bp.frequency.exponentialRampToValueAtTime(1800, t + 0.5); n.connect(bp); envel(g, t, 0.25, 0.08, 0.5); n.start(t, Math.random(), 0.8); }
+  function tick() { if (!ctx) return; const t = ctx.currentTime; const o = ctx.createOscillator(); o.frequency.value = 880; const g = gain(0, sfx); o.connect(g); envel(g, t, 0.06, 0.003, 0.07); o.start(t); o.stop(t + 0.1); }
+  function soft() { if (!ctx) return; const t = ctx.currentTime; const o = ctx.createOscillator(); o.frequency.value = 330; const g = gain(0, sfx); o.connect(g); envel(g, t, 0.08, 0.01, 0.2); o.start(t); o.stop(t + 0.3); }
+  function chirp() {
+    const t = ctx.currentTime; const n = randi(2, 4); const f = rand(2600, 3600); const out = gain(1);
+    if (ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = rand(-0.8, 0.8); out.connect(p); p.connect(amb); } else out.connect(amb);
+    for (let k = 0; k < n; k++) { const tt = t + k * 0.14; const o = ctx.createOscillator(); o.frequency.setValueAtTime(f, tt); o.frequency.linearRampToValueAtTime(f * 1.35, tt + 0.05); o.frequency.linearRampToValueAtTime(f * 0.92, tt + 0.1); const g = gain(0, out); o.connect(g); envel(g, tt, 0.025, 0.01, 0.09); o.start(tt); o.stop(tt + 0.13); }
+  }
+  function cricket() { const t = ctx.currentTime; const o = ctx.createOscillator(); o.frequency.value = rand(4300, 4800); const g = gain(0, amb); o.connect(g); for (let k = 0; k < 3; k++) { const tt = t + k * 0.06; g.gain.setValueAtTime(0.0001, tt); g.gain.linearRampToValueAtTime(0.008, tt + 0.01); g.gain.linearRampToValueAtTime(0.0001, tt + 0.035); } o.start(t); o.stop(t + 0.25); }
+
+  function update(dt, nearHall, night) {
+    if (!ctx || ctx.state !== 'running') return;
+    const t = ctx.currentTime;
+    ctlT -= dt; gustT += dt;
+    if (ctlT <= 0) {
+      ctlT = 0.25;
+      const gust = 0.5 + 0.5 * Math.sin(gustT * 0.23) * Math.sin(gustT * 0.071 + 1.3);
+      windG.gain.setTargetAtTime(0.02 + 0.045 * gust, t, 0.5); windF.frequency.setTargetAtTime(260 + 320 * gust, t, 0.5);
+      leafG.gain.setTargetAtTime(0.003 + 0.028 * gust * gust, t, 0.3);
+      chantG.gain.setTargetAtTime(0.014 + 0.075 * nearHall, t, 0.5);
+    }
+    if (t > nextBird) { if (Math.random() > night * 0.95) chirp(); nextBird = t + rand(1.5, 5) * (1 + night * 2); }
+    if (night > 0.4 && t > nextCricket) { cricket(); nextCricket = t + rand(0.5, 1.8); }
+    if (t > nextBell) { bell(0.8, 82, true); nextBell = t + rand(45, 80); }
+    while (nextSyl < t + 0.3) {
+      const st = PHRASE[syl % PHRASE.length];
+      if (st !== null) {
+        const f = 110 * Math.pow(2, st / 12);
+        for (const o of chantOscs) o.frequency.setTargetAtTime(f * o._m, nextSyl, 0.04);
+        voiceG.gain.setTargetAtTime(1, nextSyl, 0.04); voiceG.gain.setTargetAtTime(0.4, nextSyl + SYL * 0.5, 0.1);
+        f1.frequency.setTargetAtTime(syl % 2 ? 580 : 760, nextSyl, 0.05);
+        if (bgMo) knock(nextSyl, 0.1, true);
+      } else voiceG.gain.setTargetAtTime(0, nextSyl, 0.15);
+      nextSyl += SYL; syl++;
+    }
+  }
+  function setMuted(m) { muted = m; if (master) master.gain.setTargetAtTime(m ? 0 : 1, ctx.currentTime, 0.05); }
+  document.addEventListener('visibilitychange', () => { if (!ctx) return; if (document.hidden) ctx.suspend(); else ctx.resume(); });
+  return { init, update, bell, knock, pulse, chime, rattle, whoosh, tick, soft, setMuted, get muted() { return muted; }, setBgMo(v) { bgMo = v; }, get ctx() { return ctx; } };
+})();
+
+/* =========================================================
+   3. CẢNH: renderer, trời, ánh sáng
+   ========================================================= */
+const canvas = $('#c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: (window.devicePixelRatio || 1) < 2, powerPreference: 'high-performance' });
+let pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+renderer.setPixelRatio(pixelRatio);
+renderer.setSize(innerWidth, innerHeight, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.08;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0xe7a47e, 50, 190);
+const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 700);
+camera.position.set(0, 4, 46);
+
+const hemi = new THREE.HemisphereLight(0xffd9b0, 0x6a4a3a, 1.1); scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xffb27a, 2.4);
+sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
+Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 1, far: 160 });
+sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.04;
+scene.add(sun, sun.target);
+const hallLight = new THREE.PointLight(0xffb060, 30, 17, 1.5); hallLight.position.set(0, 3.6, -16.5); scene.add(hallLight);
+const yardLight = new THREE.PointLight(0xff9a50, 0, 20, 1.5); yardLight.position.set(0, 3.4, 3); scene.add(yardLight);
+const gateLight = new THREE.PointLight(0xff8a40, 0, 16, 1.5); gateLight.position.set(0, 3.2, 27); scene.add(gateLight);
+
+// Bầu trời: vòm gradient tự viết shader
+const skyU = { uTop: { value: new THREE.Color(0x5468b0) }, uHor: { value: new THREE.Color(0xffa060) }, uSun: { value: new THREE.Color(0xffb27a) }, uSunDir: { value: new THREE.Vector3(-1, 0.15, 0.4).normalize() }, uSunAmt: { value: 1 } };
+const sky = new THREE.Mesh(new THREE.SphereGeometry(500, 24, 14), new THREE.ShaderMaterial({
+  uniforms: skyU, side: THREE.BackSide, depthWrite: false, fog: false,
+  vertexShader: `varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+  fragmentShader: `uniform vec3 uTop,uHor,uSun,uSunDir; uniform float uSunAmt; varying vec3 vDir;
+    void main(){ float h=vDir.y; vec3 c=mix(uHor,uTop,smoothstep(-0.02,0.5,h)); c=mix(c,uHor*0.55,smoothstep(0.0,-0.25,h));
+      float s=max(dot(normalize(vDir),uSunDir),0.0); c+=uSun*(pow(s,10.0)*0.55+pow(s,300.0)*1.6)*uSunAmt; gl_FragColor=vec4(c,1.0); }`
+}));
+sky.renderOrder = -10; scene.add(sky);
+// Sao và trăng
+const starGeo = new THREE.BufferGeometry(); { const a = new Float32Array(500 * 3); for (let i = 0; i < 500; i++) { const th = rand(0, TAU), ph = rand(0.08, 1.45); a[i * 3] = Math.cos(th) * Math.cos(ph) * 460; a[i * 3 + 1] = Math.sin(ph) * 460; a[i * 3 + 2] = Math.sin(th) * Math.cos(ph) * 460; } starGeo.setAttribute('position', new THREE.BufferAttribute(a, 3)); }
+const starMat = new THREE.PointsMaterial({ color: 0xfff6dd, size: 1.6, sizeAttenuation: false, transparent: true, opacity: 0, fog: false, depthWrite: false });
+const stars = new THREE.Points(starGeo, starMat); sky.add(stars);
+const moonMat = new THREE.MeshBasicMaterial({ color: 0xfff3c8, fog: false, transparent: true, opacity: 0 });
+const moon = new THREE.Mesh(new THREE.SphereGeometry(9, 16, 12), moonMat); moon.position.set(140, 230, -330); sky.add(moon);
+
+/* =========================================================
+   3b. VẬT LIỆU, HỌA TIẾT VẼ BẰNG CANVAS
+   ========================================================= */
+const ML = (c, o = {}) => new THREE.MeshLambertMaterial(Object.assign({ color: c, flatShading: true }, o));
+function canvasTex(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
+const tileTex = canvasTex(256, 256, (g) => {
+  g.fillStyle = '#5a2c1f'; g.fillRect(0, 0, 256, 256);
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { g.fillStyle = `hsl(${13 + Math.random() * 8},${40 + Math.random() * 12}%,${38 + Math.random() * 10}%)`; g.fillRect(i * 64 + 2, j * 64 + 2, 60, 60); g.fillStyle = 'rgba(255,230,200,0.06)'; g.fillRect(i * 64 + 5, j * 64 + 5, 54, 10); }
+});
+tileTex.wrapS = tileTex.wrapT = THREE.RepeatWrapping; tileTex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+function signTex(text, w = 1024, h = 300) {
+  return canvasTex(w, h, (g) => {
+    const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#8a2416'); gr.addColorStop(1, '#5e140c'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    g.strokeStyle = '#e9b85a'; g.lineWidth = 16; g.strokeRect(10, 10, w - 20, h - 20); g.lineWidth = 3; g.strokeRect(34, 34, w - 68, h - 68);
+    let fs = 150; g.font = `bold ${fs}px "Times New Roman","Times New Roman",serif`; while (g.measureText(text).width > w - 110) { fs -= 6; g.font = `bold ${fs}px "Times New Roman","Times New Roman",serif`; }
+    g.fillStyle = '#f8d77a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 6; g.fillText(text, w / 2, h / 2 + 6);
+  });
+}
+const glowTex = canvasTex(64, 64, (g) => { const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(0.25, 'rgba(255,220,160,.6)'); r.addColorStop(1, 'rgba(255,160,80,0)'); g.fillStyle = r; g.fillRect(0, 0, 64, 64); });
+
+const MATS = {
+  tile: new THREE.MeshLambertMaterial({ map: tileTex }),
+  grass: ML(0x58733a), grass2: ML(0x4a6632),
+  wall: ML(0xe8cf9a), wallDark: ML(0xc89c62), plaster: ML(0xf1e2bf),
+  roof: ML(0xa63a2a, { side: THREE.DoubleSide }), roofEdge: ML(0x7a2318),
+  redwood: ML(0x8c2a1c), wood: ML(0x6b4226), woodLight: ML(0x9a6a3a),
+  stone: ML(0x9e958a), stoneDark: ML(0x6e675d), ash: ML(0x5a544e),
+  bronze: new THREE.MeshPhongMaterial({ color: 0x8a6326, specular: 0x664422, shininess: 40, flatShading: true }),
+  gold: new THREE.MeshPhongMaterial({ color: 0xd8a640, specular: 0xffd890, shininess: 60, flatShading: true, emissive: 0x3a2400 }),
+  leaf: ML(0x3f6b2e), leaf2: ML(0x587f35), leafDark: ML(0x2f5426), trunk: ML(0x5a4030),
+  water: new THREE.MeshPhongMaterial({ color: 0x2c5a66, shininess: 90, specular: 0xffd0a0, transparent: true, opacity: 0.86 }),
+  pondBed: ML(0x1d3434), pad: ML(0x4f8a3a), pink: ML(0xf09ab4), flower: ML(0xfff1d2), yellow: ML(0xf2c84a),
+  hill: ML(0x34483a), hill2: ML(0x2a3a33), cushion: ML(0xd9a23a), white: ML(0xf4efe4), fruit: ML(0xe8862a), fruit2: ML(0x9acb4a), dark: ML(0x2c3550),
+};
+
+/* ---- Gộp hình tĩnh theo vật liệu để giảm số lần vẽ ---- */
+const buckets = new Map();
+const _m4 = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _v1 = new THREE.Vector3(), _v2 = new THREE.Vector3();
+const G = {
+  box: new THREE.BoxGeometry(1, 1, 1), cyl: new THREE.CylinderGeometry(1, 1, 1, 8), cyl12: new THREE.CylinderGeometry(1, 1, 1, 14),
+  cone: new THREE.ConeGeometry(1, 1, 6), cone4: new THREE.ConeGeometry(1, 1, 4), sph: new THREE.SphereGeometry(1, 10, 8), ico: new THREE.IcosahedronGeometry(1, 1), ico0: new THREE.IcosahedronGeometry(1, 0),
+  trunk: new THREE.CylinderGeometry(0.62, 1, 1, 7),
+};
+function put(geo, key, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0, sx = 1, sy = 1, sz = 1) {
+  const g = geo.clone(); _e.set(rx, ry, rz); _q.setFromEuler(_e); _v1.set(x, y, z); _v2.set(sx, sy, sz); _m4.compose(_v1, _q, _v2); g.applyMatrix4(_m4);
+  if (!buckets.has(key)) buckets.set(key, []); buckets.get(key).push(g);
+}
+function mergeGeos(list) {
+  let nv = 0, ni = 0; for (const g of list) { nv += g.attributes.position.count; ni += g.index ? g.index.count : g.attributes.position.count; }
+  const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), uv = new Float32Array(nv * 2), idx = new Uint32Array(ni);
+  let vo = 0, io = 0;
+  for (const g of list) {
+    const p = g.attributes.position, n = g.attributes.normal, u = g.attributes.uv;
+    pos.set(p.array, vo * 3); if (n) nor.set(n.array, vo * 3); if (u) uv.set(u.array, vo * 2);
+    if (g.index) { const a = g.index.array; for (let i = 0; i < a.length; i++) idx[io + i] = a[i] + vo; io += a.length; } else { for (let i = 0; i < p.count; i++) idx[io + i] = vo + i; io += p.count; }
+    vo += p.count; g.dispose();
+  }
+  const m = new THREE.BufferGeometry(); m.setAttribute('position', new THREE.BufferAttribute(pos, 3)); m.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); m.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); m.setIndex(new THREE.BufferAttribute(idx, 1)); m.computeBoundingSphere(); return m;
+}
+const NO_CAST = new Set(['tile', 'grass', 'grass2', 'water', 'pondBed', 'pad', 'hill', 'hill2']);
+function flushStatic() {
+  for (const [key, list] of buckets) { const mesh = new THREE.Mesh(mergeGeos(list), MATS[key]); mesh.castShadow = !NO_CAST.has(key); mesh.receiveShadow = key !== 'water'; mesh.matrixAutoUpdate = false; scene.add(mesh); }
+  buckets.clear();
+}
+
+/* ---- Va chạm: hộp chữ nhật và hình tròn trên mặt đất ---- */
+const BOXES = [], CIRCLES = [];
+const addBox = (a, b, c, d) => BOXES.push([a, b, c, d]);
+const addCircle = (x, z, r) => CIRCLES.push([x, z, r]);
+function collide(p, r) {
+  for (let k = 0; k < 2; k++) {
+    for (const c of CIRCLES) { const dx = p.x - c[0], dz = p.z - c[1], rr = c[2] + r, d2 = dx * dx + dz * dz; if (d2 < rr * rr) { const d = Math.sqrt(d2) || 1e-4; p.x = c[0] + dx / d * rr; p.z = c[1] + dz / d * rr; } }
+    for (const b of BOXES) {
+      const cx = clamp(p.x, b[0], b[1]), cz = clamp(p.z, b[2], b[3]), dx = p.x - cx, dz = p.z - cz, d2 = dx * dx + dz * dz;
+      if (d2 < r * r) {
+        if (d2 > 1e-8) { const d = Math.sqrt(d2); p.x = cx + dx / d * r; p.z = cz + dz / d * r; }
+        else { const l = p.x - b[0], rr = b[1] - p.x, t = p.z - b[2], bb = b[3] - p.z, m = Math.min(l, rr, t, bb); if (m === l) p.x = b[0] - r; else if (m === rr) p.x = b[1] + r; else if (m === t) p.z = b[2] - r; else p.z = b[3] + r; }
+      }
+    }
+  }
+  p.z = clamp(p.z, -27 + r, 48); p.x = clamp(p.x, -21 + r, 21 - r);
+}
+function isFree(x, z, r) {
+  for (const c of CIRCLES) { const dx = x - c[0], dz = z - c[1], rr = c[2] + r; if (dx * dx + dz * dz < rr * rr) return false; }
+  for (const b of BOXES) { if (x > b[0] - r && x < b[1] + r && z > b[2] - r && z < b[3] + r) return false; }
+  return true;
+}
+function heightAt(x, z) {
+  if (x > -12 && x < 12 && z < -8.5 && z > -23) return 0.6;
+  if (x > -5 && x < 5 && z < -7.6 && z >= -8.5) return z < -8.05 ? 0.4 : 0.2;
+  if (x > -16.2 && x < -11.8 && z > -4.2 && z < 0.2) return 0.4;
+  return 0;
+}
+const inHall = (x, z) => x > -10.8 && x < 10.8 && z < -10.3 && z > -22;
+
+/* ---- Mái cong ngói đỏ: lưới phẳng uốn lên, đầu đao cong vút ---- */
+function roofGeo(w, d, h, ridge, lift) {
+  const g = new THREE.PlaneGeometry(w, d, 16, 10); g.rotateX(-PI / 2);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), z = p.getZ(i), u = Math.abs(x) / (w / 2), v = Math.abs(z) / (d / 2);
+    const su = ridge >= 1 ? 0 : Math.max(0, (u - ridge) / (1 - ridge)); const s = Math.min(1, Math.max(v, su));
+    p.setY(i, h * Math.pow(1 - s, 1.45) + lift * Math.pow(u * v, 3) + lift * 0.25 * Math.pow(s, 6));
+  }
+  g.computeVertexNormals(); return g;
+}
+function roof(cx, cy, cz, w, d, h, ridge = 0.5, lift = 0.6, deco = false) {
+  put(roofGeo(w, d, h, ridge, lift), 'roof', cx, cy, cz);
+  const rl = Math.max(0.3, w * ridge);
+  put(G.box, 'roofEdge', cx, cy + h + 0.06, cz, 0, 0, 0, rl + 0.3, 0.24, 0.32);
+  for (const s of [-1, 1]) put(G.cone, 'roofEdge', cx + s * (rl / 2 + 0.12), cy + h + 0.4, cz, 0, 0, -s * 0.45, 0.16, 0.75, 0.16);
+  const cl = lift * 1.25;
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) put(G.cone, 'roofEdge', cx + sx * w / 2 * 0.99, cy + cl + 0.22, cz + sz * d / 2 * 0.99, sz * 0.7, 0, -sx * 0.7, 0.12, 0.7, 0.12);
+  if (deco) { // Lưỡng long chầu nguyệt (cách điệu)
+    put(G.sph, 'gold', cx, cy + h + 0.55, cz, 0, 0, 0, 0.32, 0.32, 0.12);
+    for (const s of [-1, 1]) { put(new THREE.TorusGeometry(0.5, 0.09, 5, 10, PI * 1.3), 'gold', cx + s * 1.05, cy + h + 0.55, cz, 0, s < 0 ? 0 : PI, 0.4, 1, 1, 1); }
+  }
+}
+function column(x, y, z, h, r = 0.3) { put(G.cyl, 'redwood', x, y + h / 2, z, 0, 0, 0, r, h, r); put(G.box, 'stone', x, y + 0.12, z, 0, 0, 0, r * 2.6, 0.24, r * 2.6); }
+
+/* =========================================================
+   3c. DỰNG CHÙA: sân, cổng tam quan, chính điện, gác chuông…
+   ========================================================= */
+function buildWorld() {
+  // Đất, cỏ, sân lát gạch
+  put(new THREE.PlaneGeometry(400, 400).rotateX(-PI / 2), 'grass', 0, -0.02, 0);
+  { const g = new THREE.PlaneGeometry(42, 58).rotateX(-PI / 2); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 17.5, uv.getY(i) * 24); put(g, 'tile', 0, 0.01, 2); }
+  { const g = new THREE.PlaneGeometry(12, 16).rotateX(-PI / 2); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 5, uv.getY(i) * 6.7); put(g, 'tile', 0, 0.012, 39.5); }
+  // Tường bao
+  const wallSeg = (x0, x1, z0, z1) => { const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, sx = x1 - x0, sz = z1 - z0; put(G.box, 'wall', cx, 0.9, cz, 0, 0, 0, sx, 1.8, sz); put(G.box, 'roofEdge', cx, 1.9, cz, 0, 0, 0, sx + 0.2, 0.2, sz + 0.3); addBox(x0, x1, z0, z1); };
+  wallSeg(-21.8, -21.2, -27.8, 31.9); wallSeg(21.2, 21.8, -27.8, 31.9); wallSeg(-21.8, 21.8, -27.8, -27.2);
+  wallSeg(-21.8, -7, 31.2, 31.8); wallSeg(7, 21.8, 31.2, 31.8);
+  for (let x = -18; x <= 18; x += 6) { if (Math.abs(x) < 8) continue; put(G.box, 'wallDark', x, 1.0, 31.5, 0, 0, 0, 0.7, 2.1, 0.8); }
+
+  // ---- Cổng tam quan ----
+  const GZ = 31.5;
+  for (const [x0, x1, h] of [[-3.4, -1.6, 4.9], [1.6, 3.4, 4.9], [-7, -5.4, 3.7], [5.4, 7, 3.7]]) { put(G.box, 'wall', (x0 + x1) / 2, h / 2, GZ, 0, 0, 0, x1 - x0, h, 1.4); put(G.box, 'wallDark', (x0 + x1) / 2, 0.25, GZ, 0, 0, 0, x1 - x0 + 0.15, 0.5, 1.55); addBox(x0, x1, GZ - 0.7, GZ + 0.7); }
+  put(G.box, 'wall', 0, 4.25, GZ, 0, 0, 0, 3.3, 1.3, 1.4);
+  for (const s of [-1, 1]) put(G.box, 'wall', s * 4.4, 3.15, GZ, 0, 0, 0, 2.1, 1.1, 1.4);
+  roof(0, 4.9, GZ, 6.2, 3.4, 1.3, 0.45, 0.55);
+  put(G.box, 'wallDark', 0, 6.35, GZ, 0, 0, 0, 3.0, 0.6, 1.4);
+  roof(0, 6.5, GZ, 4.6, 2.6, 1.1, 0.4, 0.5, true);
+  for (const s of [-1, 1]) roof(s * 4.7, 3.7, GZ, 4.6, 3.0, 1.0, 0.45, 0.45);
+  // Biển tên chùa
+  const gateSign = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 0.9), (() => { const t = signTex('CHÙA AN LẠC'); return new THREE.MeshLambertMaterial({ map: t, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.3 }); })());
+  gateSign.position.set(0, 4.25, GZ + 0.72); scene.add(gateSign);
+  const gateSign2 = gateSign.clone(); gateSign2.position.z = GZ - 0.72; gateSign2.rotation.y = PI; scene.add(gateSign2);
+
+  // ---- Chính điện ----
+  put(G.box, 'stone', 0, 0.3, -15.75, 0, 0, 0, 24, 0.6, 14.5);
+  put(G.box, 'stone', 0, 0.1, -8.05, 0, 0, 0, 10, 0.2, 0.9); put(G.box, 'stone', 0, 0.2, -8.27, 0, 0, 0, 10, 0.4, 0.45);
+  put(G.box, 'wall', 0, 2.7, -22, 0, 0, 0, 22.4, 4.2, 0.4); addBox(-11.2, 11.2, -22.3, -21.7);
+  for (const s of [-1, 1]) { put(G.box, 'wall', s * 11, 2.7, -16, 0, 0, 0, 0.4, 4.2, 12.4); addBox(s < 0 ? -11.3 : 10.7, s < 0 ? -10.7 : 11.3, -22.3, -9.8); }
+  for (const x of [-10.5, -7, -3.5, 3.5, 7, 10.5]) { column(x, 0.6, -10, 4.2, 0.32); addCircle(x, -10, 0.36); }
+  for (const z of [-14, -18]) for (const x of [-7, -3.5, 3.5, 7]) { column(x, 0.6, z, 4.2, 0.3); addCircle(x, z, 0.34); }
+  for (const s of [-1, 1]) { // cửa bức bàn mở
+    put(G.box, 'wood', s * 8.75, 2.2, -10.3, 0, 0, 0, 3.3, 3.2, 0.14); addBox(s < 0 ? -10.5 : 7, s < 0 ? -7 : 10.5, -10.45, -10.15);
+    for (let k = 0; k < 4; k++) put(G.box, 'woodLight', s * (7.4 + k * 0.9), 2.4, -10.2, 0, 0, 0, 0.08, 2.6, 0.06);
+  }
+  put(G.box, 'redwood', 0, 4.95, -10, 0, 0, 0, 22.6, 0.35, 0.45); put(G.box, 'redwood', 0, 4.95, -22, 0, 0, 0, 22.6, 0.35, 0.45);
+  put(G.box, 'redwood', 0, 4.95, -16, 0, 0, 0, 22.6, 0.25, 0.3);
+  roof(0, 5.0, -16, 26.5, 16.5, 1.6, 0.5, 0.85);
+  put(G.box, 'wallDark', 0, 6.7, -16, 0, 0, 0, 15, 1.2, 7);
+  roof(0, 6.6, -16, 18, 9.5, 2.2, 0.55, 0.7, true);
+  const hallSign = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 0.95), (() => { const t = signTex('ĐẠI HÙNG BẢO ĐIỆN'); return new THREE.MeshLambertMaterial({ map: t, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.3 }); })());
+  hallSign.position.set(0, 4.35, -9.72); scene.add(hallSign);
+  // Bàn thờ và tượng Phật
+  put(G.box, 'redwood', 0, 1.2, -20, 0, 0, 0, 7, 1.2, 3); put(G.box, 'gold', 0, 1.82, -20, 0, 0, 0, 7.1, 0.06, 3.1); addBox(-3.5, 3.5, -21.5, -18.5);
+  put(G.box, 'redwood', 0, 0.95, -17.6, 0, 0, 0, 3.6, 0.7, 1.0); addBox(-1.8, 1.8, -18.1, -17.1);
+  put(G.cyl, 'bronze', 0, 1.42, -17.6, 0, 0, 0, 0.3, 0.28, 0.3); put(G.cyl, 'ash', 0, 1.57, -17.6, 0, 0, 0, 0.25, 0.02, 0.25);
+  for (const s of [-1, 1]) {
+    put(G.cyl, 'white', s * 1.3, 1.55, -17.6, 0, 0, 0, 0.07, 0.5, 0.07);
+    put(G.cyl, 'gold', s * 0.75, 1.36, -17.6, 0, 0, 0, 0.32, 0.06, 0.32);
+    for (let k = 0; k < 5; k++) put(G.sph, k % 2 ? 'fruit2' : 'fruit', s * 0.75 + rand(-0.15, 0.15), 1.46 + (k > 2 ? 0.1 : 0), -17.6 + rand(-0.15, 0.15), 0, 0, 0, 0.1, 0.1, 0.1);
+    put(G.cyl, 'bronze', s * 2.8, 2.1, -19.2, 0, 0, 0, 0.18, 0.6, 0.18); for (let k = 0; k < 4; k++) put(G.sph, 'pink', s * 2.8 + rand(-0.2, 0.2), 2.55 + rand(0, 0.2), -19.2 + rand(-0.2, 0.2), 0, 0, 0, 0.14, 0.14, 0.14);
+  }
+  buildBuddha();
+  // Ghế ngồi tụng kinh (bồ đoàn)
+  for (const s of SEATS) put(G.cyl12, 'cushion', s.x, 0.66, s.z, 0, 0, 0, 0.3, 0.12, 0.3);
+  // Trạm gõ mõ (trái) và xin quẻ (phải)
+  put(G.cyl12, 'cushion', -5.25, 0.68, -14.9, 0, 0, 0, 0.38, 0.14, 0.38);
+  put(G.box, 'redwood', -5.25, 0.85, -15.9, 0, 0, 0, 0.9, 0.5, 0.6); addCircle(-5.25, -15.9, 0.45);
+  put(G.sph, 'woodLight', -5.25, 1.32, -15.9, 0, 0, 0, 0.36, 0.26, 0.3); put(G.box, 'wood', -5.25, 1.32, -15.6, 0, 0, 0, 0.4, 0.04, 0.05);
+  put(G.box, 'redwood', 5.25, 1.0, -15.9, 0, 0, 0, 1.2, 0.8, 0.8); addBox(4.65, 5.85, -16.3, -15.5);
+  put(G.cyl, 'redwood', 5.25, 1.62, -15.9, 0, 0, 0, 0.16, 0.45, 0.16); put(G.cyl, 'gold', 5.25, 1.62, -15.9, 0, 0, 0, 0.165, 0.06, 0.165);
+  for (let k = 0; k < 8; k++) put(G.box, 'woodLight', 5.25 + rand(-0.08, 0.08), 1.95, -15.9 + rand(-0.08, 0.08), rand(-0.1, 0.1), 0, rand(-0.1, 0.1), 0.025, 0.4, 0.025);
+  // Chậu cây cảnh trước điện
+  for (const s of [-1, 1]) { put(G.cyl, 'bronze', s * 8.5, 0.35, -6.8, 0, 0, 0, 0.6, 0.7, 0.6); put(G.ico, 'leaf2', s * 8.5, 1.3, -6.8, 0, 0, 0, 0.8, 0.7, 0.8); put(G.ico, 'leaf', s * 8.5, 1.9, -6.8, 0, 0, 0, 0.5, 0.45, 0.5); addCircle(s * 8.5, -6.8, 0.7); }
+
+  // ---- Lư hương đồng lớn giữa sân ----
+  put(G.box, 'stone', 0, 0.3, 8, 0, 0, 0, 2.6, 0.6, 2.6); put(G.box, 'stoneDark', 0, 0.62, 8, 0, 0, 0, 2.3, 0.06, 2.3); addBox(-1.3, 1.3, 6.7, 9.3);
+  { const prof = [[0, 0], [0.75, 0.02], [1.0, 0.25], [1.12, 0.6], [1.05, 0.95], [0.9, 1.1], [1.05, 1.2], [1.12, 1.3], [1.0, 1.32]].map(([x, y]) => new THREE.Vector2(x, y)); put(new THREE.LatheGeometry(prof, 14), 'bronze', 0, 0.95, 8); }
+  for (let k = 0; k < 3; k++) { const a = k / 3 * TAU; put(G.cyl, 'bronze', Math.cos(a) * 0.6, 0.8, 8 + Math.sin(a) * 0.6, 0, 0, 0, 0.12, 0.4, 0.12); }
+  for (const s of [-1, 1]) put(new THREE.TorusGeometry(0.3, 0.07, 5, 10), 'bronze', s * 1.15, 2.1, 8, 0, PI / 2, 0, 1, 1, 1);
+  put(G.cyl12, 'ash', 0, 2.18, 8, 0, 0, 0, 0.98, 0.04, 0.98);
+
+  // ---- Gác chuông ----
+  const BX = -14, BZ = -2;
+  put(G.box, 'stone', BX, 0.2, BZ, 0, 0, 0, 4.4, 0.4, 4.4);
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) { column(BX + sx * 1.6, 0.4, BZ + sz * 1.6, 3.6, 0.22); addCircle(BX + sx * 1.6, BZ + sz * 1.6, 0.28); }
+  for (const s of [-1, 1]) { put(G.box, 'redwood', BX, 4.0, BZ + s * 1.6, 0, 0, 0, 3.6, 0.22, 0.26); put(G.box, 'redwood', BX + s * 1.6, 4.0, BZ, 0, 0, 0, 0.26, 0.22, 3.6); }
+  put(G.box, 'redwood', BX, 3.95, BZ, 0, 0, 0, 3.4, 0.2, 0.22);
+  roof(BX, 4.1, BZ, 5.4, 5.4, 1.3, 0.12, 0.6);
+  put(G.box, 'wallDark', BX, 5.55, BZ, 0, 0, 0, 2.0, 0.6, 2.0);
+  roof(BX, 5.6, BZ, 3.4, 3.4, 1.2, 0.1, 0.45);
+  addCircle(BX, BZ, 0.95);
+
+  // ---- Cây bồ đề lớn ----
+  bodhi(14, 6);
+  // Cây hoa đại hai bên điện
+  for (const s of [-1, 1]) hoaDai(s * 17.5, -11);
+  // ---- Hồ sen ----
+  const PX = -13, PZ = 14;
+  put(new THREE.TorusGeometry(4.5, 0.38, 6, 30), 'stone', PX, 0.12, PZ, PI / 2, 0, 0, 1, 1, 1);
+  put(new THREE.CircleGeometry(4.4, 30).rotateX(-PI / 2), 'pondBed', PX, 0.03, PZ);
+  put(new THREE.CircleGeometry(4.35, 30).rotateX(-PI / 2), 'water', PX, 0.16, PZ);
+  addCircle(PX, PZ, 4.85);
+  for (let i = 0; i < 18; i++) { const a = rand(0, TAU), r = rand(0.6, 3.7); const s = rand(0.3, 0.55); put(G.cyl, 'pad', PX + Math.cos(a) * r, 0.18, PZ + Math.sin(a) * r, 0, 0, 0, s, 0.03, s); }
+  for (let i = 0; i < 8; i++) { const a = rand(0, TAU), r = rand(0.8, 3.4); const x = PX + Math.cos(a) * r, z = PZ + Math.sin(a) * r; put(G.cone, 'pink', x, 0.34, z, 0, rand(0, 1), 0, 0.2, 0.3, 0.2); put(G.ico0, 'yellow', x, 0.4, z, 0, 0, 0, 0.06, 0.06, 0.06); put(G.cyl, 'pad', x, 0.2, z, 0, 0, 0, 0.03, 0.2, 0.03); }
+
+  // ---- Cột đèn lồng dọc lối đi ----
+  for (const z of [28, 23.5, 19, 14]) for (const s of [-1, 1]) { const x = s * 3.4; put(G.box, 'wood', x, 1.3, z, 0, 0, 0, 0.16, 2.6, 0.16); put(G.box, 'wood', x - s * 0.3, 2.55, z, 0, 0, 0, 0.75, 0.1, 0.1); put(G.box, 'stone', x, 0.12, z, 0, 0, 0, 0.45, 0.24, 0.45); addCircle(x, z, 0.2); LANTERN_POS.push([x - s * 0.55, 2.05, z]); }
+  for (const x of [-9, -5.25, 5.25, 9]) LANTERN_POS.push([x, 4.25, -9.4]);
+  for (const s of [-1, 1]) LANTERN_POS.push([s * 2.5, 3.35, 32.55]);
+  LANTERN_POS.push([BX + 2.1, 3.5, BZ + 2.1], [BX + 2.1, 3.5, BZ - 2.1]);
+
+  // ---- Cây xanh, đồi núi phía xa ----
+  const tree = (x, z, s) => { put(G.trunk, 'trunk', x, 0.9 * s, z, 0, 0, 0, 0.25 * s, 1.8 * s, 0.25 * s); put(G.ico, pick(['leaf', 'leaf2', 'leafDark']), x, 2.4 * s, z, 0, rand(0, 3), 0, 1.4 * s, 1.3 * s, 1.4 * s); put(G.ico0, pick(['leaf', 'leaf2']), x + 0.4 * s, 3.2 * s, z, 0, 0, 0, 0.9 * s, 0.9 * s, 0.9 * s); };
+  for (let i = 0; i < 26; i++) { const side = i % 3; let x, z; if (side === 0) { x = rand(-30, -23.5); z = rand(-30, 40); } else if (side === 1) { x = rand(23.5, 30); z = rand(-30, 40); } else { x = rand(-28, 28); z = rand(-36, -29.5); } tree(x, z, rand(1, 1.7)); }
+  for (let i = 0; i < 10; i++) { const s = i % 2 ? -1 : 1; tree(s * rand(8, 20), rand(34, 46), rand(0.9, 1.4)); }
+  for (let i = 0; i < 16; i++) { const a = -PI * 0.1 - i / 16 * PI * 1.2 + rand(-0.05, 0.05); const r = rand(130, 175); put(G.cone, i % 2 ? 'hill' : 'hill2', Math.cos(a) * r, 0, Math.sin(a) * r - 20, 0, rand(0, 3), 0, rand(28, 50), rand(26, 52), rand(28, 50)); }
+  for (let i = 0; i < 8; i++) { const a = rand(0.15, 0.85) * PI; const r = rand(150, 190); put(G.cone, 'hill2', Math.cos(a) * r, 0, Math.sin(a) * r + 30, 0, 0, 0, 40, rand(18, 30), 40); }
+  // Bụi hoa trong sân
+  for (const [x, z] of [[-8, 26], [8, 26], [-8, 18], [8, 18], [-18, 24], [18, 24], [18, -2], [-18, 6]]) { put(G.ico, 'leaf2', x, 0.45, z, 0, 0, 0, 0.7, 0.5, 0.7); for (let k = 0; k < 4; k++) put(G.ico0, k % 2 ? 'pink' : 'yellow', x + rand(-0.5, 0.5), 0.8, z + rand(-0.5, 0.5), 0, 0, 0, 0.12, 0.12, 0.12); addCircle(x, z, 0.65); }
+  flushStatic();
+}
+const LANTERN_POS = [];
+const SEATS = [];
+for (const x of [-9.6, -8.4, 8.4, 9.6]) for (const z of [-20.5, -19, -17.5, -16, -14.5, -13]) SEATS.push({ x, z, by: -1 });
+for (const x of [-2.4, -1.2, 1.2, 2.4]) SEATS.push({ x, z: -16.4, by: -1 });
+
+function bodhi(x, z) {
+  put(G.cyl12, 'stone', x, 0.25, z, 0, 0, 0, 1.6, 0.5, 1.6); put(G.cyl12, 'grass2', x, 0.51, z, 0, 0, 0, 1.45, 0.02, 1.45);
+  put(G.trunk, 'trunk', x, 2.0, z, 0, 0, 0, 0.6, 3.6, 0.6);
+  for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + 0.3; put(G.cone, 'trunk', x + Math.cos(a) * 0.55, 0.65, z + Math.sin(a) * 0.55, 0, -a, -0.5, 0.25, 0.7, 0.25); }
+  for (let i = 0; i < 6; i++) { const a = i / 6 * TAU, t = 0.75, L = 2.8; const dx = Math.cos(a) * Math.sin(t), dy = Math.cos(t), dz = Math.sin(a) * Math.sin(t); put(G.trunk, 'trunk', x + dx * L / 2, 3.2 + dy * L / 2, z + dz * L / 2, 0, -a, -t, 0.18, L, 0.18); }
+  const blobs = [[0, 7.2, 0, 2.8], [2.4, 6.0, 0.6, 2.3], [-2.2, 6.2, -0.5, 2.3], [0.5, 6.1, 2.4, 2.2], [-0.4, 6.0, -2.4, 2.2], [1.8, 5.3, -1.9, 1.8], [-1.8, 5.4, 1.9, 1.8], [3.3, 5.0, 2.2, 1.5], [-3.2, 5.0, -2, 1.5], [0, 5.0, 3.4, 1.6], [0, 5.0, -3.5, 1.6], [3.5, 5.2, -0.8, 1.6], [-3.5, 5.3, 0.8, 1.6]];
+  for (const [bx, by, bz, s] of blobs) put(G.ico, pick(['leaf', 'leaf2', 'leafDark']), x + bx, by, z + bz, 0, rand(0, 3), 0, s, s * 0.8, s);
+  addCircle(x, z, 1.65);
+}
+function hoaDai(x, z) {
+  put(G.trunk, 'trunk', x, 1.2, z, 0.1, 0, 0.1, 0.35, 2.4, 0.35);
+  for (let i = 0; i < 4; i++) { const a = i / 4 * TAU; put(G.trunk, 'trunk', x + Math.cos(a) * 0.6, 2.7, z + Math.sin(a) * 0.6, 0, -a, -0.8, 0.12, 1.6, 0.12); }
+  for (let i = 0; i < 6; i++) { const a = i / 6 * TAU; const bx = x + Math.cos(a) * 1.3, bz = z + Math.sin(a) * 1.3; put(G.ico0, 'leaf', bx, 3.4, bz, 0, 0, 0, 1.0, 0.7, 1.0); for (let k = 0; k < 4; k++) put(G.ico0, 'flower', bx + rand(-0.6, 0.6), 3.9 + rand(0, 0.3), bz + rand(-0.6, 0.6), 0, 0, 0, 0.13, 0.08, 0.13); }
+  put(G.ico0, 'leaf2', x, 3.9, z, 0, 0, 0, 1.1, 0.8, 1.1);
+  addCircle(x, z, 0.5);
+}
+function buildBuddha() {
+  const g = new THREE.Group(); g.position.set(0, 1.85, -20.2); g.scale.setScalar(0.88);
+  const add = (geo, mat, x, y, z, sx = 1, sy = 1, sz = 1, rx = 0, ry = 0, rz = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.scale.set(sx, sy, sz); m.rotation.set(rx, ry, rz); m.castShadow = true; g.add(m); return m; };
+  const gold = MATS.gold, petalM = new THREE.MeshPhongMaterial({ color: 0xe8b060, specular: 0xffe0a0, shininess: 50, flatShading: true, emissive: 0x3a1a10 });
+  add(new THREE.CylinderGeometry(1.25, 1.45, 0.35, 16), MATS.redwood, 0, 0.17, 0);
+  const petal = new THREE.SphereGeometry(0.4, 6, 4);
+  for (let row = 0; row < 2; row++) for (let i = 0; i < 12; i++) {
+    const a = (i + row * 0.5) / 12 * TAU; const pv = new THREE.Group(); pv.rotation.y = -a; pv.position.y = 0.35 + row * 0.12; g.add(pv);
+    const m = new THREE.Mesh(petal, petalM); m.position.set(1.05 - row * 0.25, 0.25, 0); m.scale.set(0.3, 0.75, 0.55); m.rotation.z = -0.4; pv.add(m);
+  }
+  add(new THREE.SphereGeometry(1, 14, 10), gold, 0, 0.88, 0.05, 1.25, 0.42, 0.85);
+  const prof = [[0, 0], [0.82, 0], [0.88, 0.25], [0.8, 0.7], [0.7, 1.05], [0.52, 1.3], [0.25, 1.42], [0, 1.45]].map(([x, y]) => new THREE.Vector2(x, y));
+  add(new THREE.LatheGeometry(prof, 16), gold, 0, 0.95, 0, 1, 1, 0.78);
+  add(new THREE.SphereGeometry(1, 10, 8), gold, 0, 1.15, 0.5, 0.42, 0.14, 0.26);
+  for (const s of [-1, 1]) add(new THREE.CapsuleGeometry(0.15, 0.6, 3, 8), gold, s * 0.66, 1.55, 0.18, 1, 1, 1, -0.45, 0, s * 0.3);
+  add(new THREE.CylinderGeometry(0.2, 0.24, 0.3, 10), gold, 0, 2.45, 0);
+  add(new THREE.SphereGeometry(0.5, 16, 12), gold, 0, 2.88, 0, 0.92, 1.05, 0.95);
+  add(new THREE.SphereGeometry(0.52, 16, 10, 0, TAU, 0, PI * 0.5), MATS.dark, 0, 2.95, -0.03, 0.93, 0.95, 0.97);
+  add(new THREE.SphereGeometry(0.2, 10, 8), MATS.dark, 0, 3.42, -0.02);
+  for (const s of [-1, 1]) add(new THREE.BoxGeometry(0.08, 0.42, 0.14), gold, s * 0.47, 2.78, 0);
+  const haloM = new THREE.MeshBasicMaterial({ color: 0xffc860, transparent: true, opacity: 0.85, fog: false });
+  add(new THREE.TorusGeometry(0.78, 0.045, 6, 40), haloM, 0, 2.95, -0.45);
+  add(new THREE.TorusGeometry(1.75, 0.05, 6, 48), haloM, 0, 1.9, -0.75);
+  const diskM = new THREE.MeshBasicMaterial({ color: 0xffb040, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+  add(new THREE.CircleGeometry(0.76, 32), diskM, 0, 2.95, -0.47).castShadow = false;
+  add(new THREE.CircleGeometry(1.72, 40), diskM, 0, 1.9, -0.77).castShadow = false;
+  scene.add(g);
+}
+
+/* ---- Vật thể động: chuông đồng, chày gỗ, đèn lồng, nhang… ---- */
+buildWorld();
+// Quả chuông đồng + chày
+const bellPivot = new THREE.Group(); bellPivot.position.set(-14, 3.9, -2); scene.add(bellPivot);
+{
+  const prof = [[0.78, 0], [0.74, 0.12], [0.62, 0.5], [0.56, 1.0], [0.52, 1.35], [0.34, 1.52], [0, 1.56]].map(([x, y]) => new THREE.Vector2(x, y));
+  const bellM = new THREE.MeshPhongMaterial({ color: 0x8a6a2a, specular: 0xffd890, shininess: 50, flatShading: true, side: THREE.DoubleSide });
+  const b = new THREE.Mesh(new THREE.LatheGeometry(prof, 16), bellM); b.position.y = -1.85; b.castShadow = true; bellPivot.add(b);
+  for (let k = 0; k < 3; k++) { const r = new THREE.Mesh(new THREE.TorusGeometry(0.6 - k * 0.03, 0.025, 4, 20), bellM); r.rotation.x = PI / 2; r.position.y = -1.85 + 0.35 + k * 0.4; bellPivot.add(r); }
+  const hook = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.3, 6), MATS.bronze); hook.position.y = -0.18; bellPivot.add(hook);
+}
+const strikerPivot = new THREE.Group(); strikerPivot.position.set(-12.62, 3.9, -2); scene.add(strikerPivot);
+{
+  const log = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 1.4, 8), MATS.woodLight); log.rotation.z = PI / 2; log.position.y = -1.4; log.castShadow = true; strikerPivot.add(log);
+  for (const s of [-1, 1]) { const rope = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 1.4, 4), MATS.cushion); rope.position.set(s * 0.5, -0.7, 0); strikerPivot.add(rope); }
+}
+// Đèn lồng đỏ (InstancedMesh) + quầng sáng lung linh
+const lanternMat = new THREE.MeshLambertMaterial({ color: 0xd0281e, emissive: 0xff3a1a, emissiveIntensity: 0.6, flatShading: true });
+const lanternMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(0.28, 10, 8).scale(1, 1.25, 1), lanternMat, LANTERN_POS.length);
+const capMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.13, 0.13, 0.07, 8), MATS.gold, LANTERN_POS.length * 2);
+const lanternGlows = [];
+{
+  const d = new THREE.Object3D();
+  LANTERN_POS.forEach(([x, y, z], i) => {
+    d.position.set(x, y, z); d.rotation.set(0, 0, 0); d.scale.set(1, 1, 1); d.updateMatrix(); lanternMesh.setMatrixAt(i, d.matrix);
+    d.position.y = y + 0.37; d.updateMatrix(); capMesh.setMatrixAt(i * 2, d.matrix); d.position.y = y - 0.37; d.updateMatrix(); capMesh.setMatrixAt(i * 2 + 1, d.matrix);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xff8a40, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false, opacity: 0.4 }));
+    sp.position.set(x, y, z); sp.scale.setScalar(1.6); sp.userData.ph = rand(0, 10); scene.add(sp); lanternGlows.push(sp);
+  });
+  scene.add(lanternMesh, capMesh);
+}
+
+/* =========================================================
+   4. HẠT: khói hương, đom đóm, cánh hoa
+   ========================================================= */
+const ptsVS = `attribute float aSize; attribute float aAlpha; varying float vA; uniform float uScale;
+  void main(){ vA=aAlpha; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_PointSize=aSize*uScale/max(0.1,-mv.z); gl_Position=projectionMatrix*mv; }`;
+const ptsFS = `uniform vec3 uColor; varying float vA; void main(){ vec2 c=gl_PointCoord-0.5; float d=length(c); float a=smoothstep(0.5,0.0,d)*vA; if(a<0.004) discard; gl_FragColor=vec4(uColor,a); }`;
+const ptsUScale = { value: 400 };
+function makePoints(n, color, additive) {
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(n * 3), size = new Float32Array(n), alpha = new Float32Array(n);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute('aSize', new THREE.BufferAttribute(size, 1).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute('aAlpha', new THREE.BufferAttribute(alpha, 1).setUsage(THREE.DynamicDrawUsage));
+  const mat = new THREE.ShaderMaterial({ uniforms: { uColor: { value: new THREE.Color(color) }, uScale: ptsUScale }, vertexShader: ptsVS, fragmentShader: ptsFS, transparent: true, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending });
+  const p = new THREE.Points(geo, mat); p.frustumCulled = false; scene.add(p);
+  return { p, geo, pos, size, alpha, mat, n };
+}
+// Khói hương
+const SMOKE_N = 240;
+const smoke = makePoints(SMOKE_N, 0xd8d0cc, false);
+const smokeLife = new Float32Array(SMOKE_N), smokeMax = new Float32Array(SMOKE_N), smokeVel = new Float32Array(SMOKE_N * 3);
+let smokeAcc = 0, smokeBoost = 0;
+// Đom đóm
+const FF_N = 70;
+const ff = makePoints(FF_N, 0xd8ff7a, true);
+const ffHome = new Float32Array(FF_N * 3), ffPh = new Float32Array(FF_N);
+for (let i = 0; i < FF_N; i++) {
+  const r = Math.random(); let x, z;
+  if (r < 0.3) { const a = rand(0, TAU); x = -13 + Math.cos(a) * rand(3, 7); z = 14 + Math.sin(a) * rand(3, 7); }
+  else if (r < 0.55) { const a = rand(0, TAU); x = 14 + Math.cos(a) * rand(2, 6); z = 6 + Math.sin(a) * rand(2, 6); }
+  else { x = rand(-20, 20); z = rand(-6, 30); }
+  ffHome[i * 3] = x; ffHome[i * 3 + 1] = rand(0.6, 3.2); ffHome[i * 3 + 2] = z; ffPh[i] = rand(0, 100); ff.size[i] = rand(0.1, 0.17);
+}
+// Cánh hoa rơi
+const PETAL_N = 46;
+const petalMesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.13, 0.09), new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide }), PETAL_N);
+petalMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); petalMesh.frustumCulled = false; scene.add(petalMesh);
+const petals = [];
+const PETAL_SRC = [[14, 6, 3.5, 4.8], [-17.5, -11, 1.6, 3.8], [17.5, -11, 1.6, 3.8]];
+const _col = new THREE.Color();
+function respawnPetal(p) { const s = pick(PETAL_SRC); const a = rand(0, TAU), r = rand(0, s[2]); p.x = s[0] + Math.cos(a) * r; p.z = s[1] + Math.sin(a) * r; p.y = s[3] + rand(-0.5, 0.8); p.vy = rand(0.22, 0.42); p.rest = 0; p.ph = rand(0, 10); }
+for (let i = 0; i < PETAL_N; i++) { const p = { x: 0, y: 0, z: 0, vy: 0, rest: 0, ph: 0, rx: rand(0, 6), rz: rand(0, 6) }; respawnPetal(p); p.y = rand(0.1, p.y); petals.push(p); petalMesh.setColorAt(i, _col.set(pick([0xfff3d8, 0xfde4b0, 0xf8c0d0, 0xffffff]))); }
+
+/* ---- Nén hương trong lư (InstancedMesh, tái sử dụng ô trống) ---- */
+const STICK_MAX = 100, ASH_Y = 2.2;
+const stickMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.014, 0.014, 1, 4).translate(0, 0.5, 0), ML(0xb0442a), STICK_MAX);
+const tipMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(0.03, 6, 4), new THREE.MeshBasicMaterial({ color: 0xff6a20 }), STICK_MAX);
+stickMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); tipMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); stickMesh.frustumCulled = tipMesh.frustumCulled = false;
+scene.add(stickMesh, tipMesh);
+const sticks = []; for (let i = 0; i < STICK_MAX; i++) sticks.push({ on: false, x: 0, z: 0, rx: 0, rz: 0, life: 0, max: 1, tx: 0, ty: 0, tz: 0, born: 0 });
+const ZERO_M = new THREE.Matrix4().makeScale(0, 0, 0);
+for (let i = 0; i < STICK_MAX; i++) { stickMesh.setMatrixAt(i, ZERO_M); tipMesh.setMatrixAt(i, ZERO_M); }
+let stickClock = 0;
+function addStick(x, z, life) {
+  let best = 0, bestBorn = Infinity;
+  for (let i = 0; i < STICK_MAX; i++) { if (!sticks[i].on) { best = i; bestBorn = -1; break; } if (sticks[i].born < bestBorn) { bestBorn = sticks[i].born; best = i; } }
+  const s = sticks[best]; s.on = true; s.x = x; s.z = z; s.rx = rand(-0.12, 0.12); s.rz = rand(-0.12, 0.12); s.life = 0; s.max = life; s.born = stickClock++;
+}
+function addSticksRandom(n, life, front = false) {
+  for (let k = 0; k < n; k++) { const a = front ? rand(0.25 * PI, 0.75 * PI) : rand(0, TAU); const r = front ? rand(0.2, 0.5) : rand(0.1, 0.8); addStick(Math.cos(a) * r, 8 + Math.sin(a) * r, life); }
+}
+const _d = new THREE.Object3D();
+function updateSticks(dt) {
+  let active = 0;
+  for (let i = 0; i < STICK_MAX; i++) {
+    const s = sticks[i]; if (!s.on) continue;
+    s.life += dt; const k = s.life / s.max; if (k >= 1) { s.on = false; stickMesh.setMatrixAt(i, ZERO_M); tipMesh.setMatrixAt(i, ZERO_M); continue; }
+    active++;
+    const len = 0.75 - 0.6 * k;
+    _d.position.set(s.x, ASH_Y, s.z); _d.rotation.set(s.rx, 0, s.rz); _d.scale.set(1, len, 1); _d.updateMatrix(); stickMesh.setMatrixAt(i, _d.matrix);
+    s.tx = s.x - Math.sin(s.rz) * len; s.ty = ASH_Y + len * Math.cos(s.rx) * Math.cos(s.rz); s.tz = s.z + Math.sin(s.rx) * len;
+    const pul = 1 + 0.25 * Math.sin(time * 6 + i);
+    _d.position.set(s.tx, s.ty, s.tz); _d.rotation.set(0, 0, 0); _d.scale.set(pul, pul, pul); _d.updateMatrix(); tipMesh.setMatrixAt(i, _d.matrix);
+  }
+  stickMesh.instanceMatrix.needsUpdate = true; tipMesh.instanceMatrix.needsUpdate = true;
+  return active;
+}
+function updateSmoke(dt, nActive, night) {
+  smokeBoost = Math.max(0, smokeBoost - dt);
+  smokeAcc += dt * (14 + nActive * 0.9 + (smokeBoost > 0 ? 40 : 0));
+  for (let i = 0; i < SMOKE_N; i++) {
+    if (smokeLife[i] <= 0) {
+      if (smokeAcc < 1) { smoke.alpha[i] = 0; continue; }
+      smokeAcc -= 1;
+      let x = 0, y = 1.65, z = -17.6;
+      if (Math.random() < 0.82 && nActive > 0) { for (let t = 0; t < 6; t++) { const s = sticks[(Math.random() * STICK_MAX) | 0]; if (s.on) { x = s.tx; y = s.ty; z = s.tz; break; } } }
+      smoke.pos[i * 3] = x; smoke.pos[i * 3 + 1] = y; smoke.pos[i * 3 + 2] = z;
+      smokeVel[i * 3] = rand(-0.05, 0.05); smokeVel[i * 3 + 1] = rand(0.3, 0.55); smokeVel[i * 3 + 2] = rand(-0.05, 0.05);
+      smokeMax[i] = smokeLife[i] = rand(3.5, 6);
+    }
+    smokeLife[i] -= dt; const k = 1 - smokeLife[i] / smokeMax[i];
+    const j = i * 3; smoke.pos[j] += (smokeVel[j] + Math.sin(time * 0.7 + i) * 0.06 + 0.07) * dt; smoke.pos[j + 1] += smokeVel[j + 1] * dt; smoke.pos[j + 2] += (smokeVel[j + 2] + Math.cos(time * 0.6 + i * 1.3) * 0.05) * dt;
+    smoke.size[i] = 0.12 + k * 1.1; smoke.alpha[i] = Math.sin(k * PI) * (0.3 - night * 0.08);
+  }
+  smoke.mat.uniforms.uColor.value.setRGB(lerp(0.86, 0.6, night), lerp(0.82, 0.58, night), lerp(0.8, 0.68, night));
+  smoke.geo.attributes.position.needsUpdate = smoke.geo.attributes.aSize.needsUpdate = smoke.geo.attributes.aAlpha.needsUpdate = true;
+}
+function updateFireflies(night) {
+  for (let i = 0; i < FF_N; i++) {
+    const ph = ffPh[i], j = i * 3;
+    ff.pos[j] = ffHome[j] + Math.sin(time * 0.31 + ph) * 1.2; ff.pos[j + 1] = ffHome[j + 1] + Math.sin(time * 0.53 + ph * 2) * 0.5; ff.pos[j + 2] = ffHome[j + 2] + Math.cos(time * 0.27 + ph) * 1.2;
+    const f = Math.max(0, Math.sin(time * 2.2 + ph * 3)); ff.alpha[i] = smooth(0.25, 0.8, night) * f * f * 0.95;
+  }
+  ff.geo.attributes.position.needsUpdate = ff.geo.attributes.aAlpha.needsUpdate = true;
+  ff.geo.attributes.aSize.needsUpdate = true;
+}
+function updatePetals(dt) {
+  for (let i = 0; i < PETAL_N; i++) {
+    const p = petals[i];
+    if (p.rest > 0) { p.rest -= dt; if (p.rest <= 0) respawnPetal(p); }
+    else {
+      p.y -= p.vy * dt; p.x += (Math.sin(time * 1.3 + p.ph) * 0.35 + 0.12) * dt; p.z += Math.cos(time * 1.1 + p.ph) * 0.3 * dt; p.rx += dt * 2.1; p.rz += dt * 1.7;
+      const gy = heightAt(p.x, p.z) + 0.02; if (p.y <= gy) { p.y = gy; p.rest = rand(3, 7); p.rx = -PI / 2; p.rz = rand(0, 3); }
+    }
+    _d.position.set(p.x, p.y, p.z); _d.rotation.set(p.rx, p.rz, p.rest > 0 ? 0 : p.rz * 0.5); _d.scale.set(1, 1, 1); _d.updateMatrix(); petalMesh.setMatrixAt(i, _d.matrix);
+  }
+  petalMesh.instanceMatrix.needsUpdate = true;
+}
+
+/* ---- Dải lụa đỏ trên cây bồ đề (của khách AI) ---- */
+const RIB_N = 90;
+const ribMesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.13, 0.8).translate(0, -0.4, 0), new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide }), RIB_N);
+ribMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); ribMesh.frustumCulled = false; scene.add(ribMesh);
+const ribs = [];
+for (let i = 0; i < RIB_N; i++) { const a = rand(0, TAU), r = rand(1.6, 4.0); ribs.push({ x: 14 + Math.cos(a) * r, y: rand(3.3, 4.3) + (4 - r) * 0.2, z: 6 + Math.sin(a) * r, yaw: rand(0, TAU), ph: rand(0, 10) }); ribMesh.setColorAt(i, _col.set(pick([0xc8231a, 0xd8301e, 0xb01a14, 0xe0402a, 0xe8b030]))); }
+function updateRibbons() {
+  for (let i = 0; i < RIB_N; i++) { const r = ribs[i]; _d.position.set(r.x, r.y, r.z); _d.rotation.set(Math.sin(time * 1.4 + r.ph) * 0.18, r.yaw, Math.sin(time * 1.1 + r.ph * 1.7) * 0.12); _d.scale.set(1, 1, 1); _d.updateMatrix(); ribMesh.setMatrixAt(i, _d.matrix); }
+  ribMesh.instanceMatrix.needsUpdate = true;
+}
+// Dải lụa của người chơi có chữ (texture riêng, giải phóng khi thay)
+const playerRibbons = [];
+const PR_MAX = 4;
+function ribbonTexture(text) {
+  return canvasTex(128, 512, (g, w, h) => {
+    const gr = g.createLinearGradient(0, 0, w, 0); gr.addColorStop(0, '#a8180f'); gr.addColorStop(0.5, '#d8301e'); gr.addColorStop(1, '#a8180f'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    g.strokeStyle = '#f3c969'; g.lineWidth = 5; g.strokeRect(5, 5, w - 10, h - 10);
+    g.save(); g.translate(w / 2, h / 2); g.rotate(PI / 2); g.fillStyle = '#ffe9b0'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    let fs = 30; let lines; do { g.font = `bold ${fs}px "Times New Roman",serif`; lines = wrapText(g, text, h - 50); fs -= 2; } while (lines.length * (fs + 6) > w - 26 && fs > 12);
+    const lh = fs + 6; lines.forEach((l, i) => g.fillText(l, 0, (i - (lines.length - 1) / 2) * lh)); g.restore();
+  });
+}
+function addPlayerRibbon(text) {
+  let r;
+  if (playerRibbons.length >= PR_MAX) { r = playerRibbons.shift(); r.material.map.dispose(); r.material.map = ribbonTexture(text); r.material.needsUpdate = true; }
+  else { r = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 1.05).translate(0, -0.52, 0), new THREE.MeshLambertMaterial({ map: ribbonTexture(text), side: THREE.DoubleSide, emissive: 0x401008 })); scene.add(r); }
+  const a = PI + rand(-0.5, 0.5), rr = rand(2.0, 2.6); r.position.set(14 + Math.cos(a) * rr, 3.9, 6 + Math.sin(a) * rr); r.rotation.set(0, -a + PI / 2, 0); r.userData.t = 0; r.userData.ph = rand(0, 10); r.scale.set(1, 0.01, 1);
+  playerRibbons.push(r); return r;
+}
+
+/* ---- Đèn hoa đăng trôi trên hồ sen ---- */
+const HD_N = 20, PX = -13, PZ = 14;
+const hdGeo = mergeGeos([new THREE.CylinderGeometry(0.24, 0.14, 0.1, 8), new THREE.ConeGeometry(0.22, 0.24, 6).translate(0, 0.16, 0), new THREE.ConeGeometry(0.15, 0.3, 5).translate(0, 0.2, 0).rotateY(0.5)]);
+const hdMesh = new THREE.InstancedMesh(hdGeo, new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x552020, flatShading: true }), HD_N);
+const hdFlame = new THREE.InstancedMesh(new THREE.SphereGeometry(0.05, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffd27a }), HD_N);
+hdMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); hdFlame.instanceMatrix.setUsage(THREE.DynamicDrawUsage); hdMesh.frustumCulled = hdFlame.frustumCulled = false;
+scene.add(hdMesh, hdFlame);
+const hds = [];
+for (let i = 0; i < HD_N; i++) {
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xffb060, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false, opacity: 0.5 })); sp.scale.setScalar(0.9); scene.add(sp);
+  hds.push({ on: i < 14, ang: rand(0, TAU), rad: rand(1.0, 3.5), sp: rand(0.04, 0.09) * (Math.random() < 0.5 ? -1 : 1), ph: rand(0, 10), player: false, glow: sp, intro: 1, sx: 0, sz: 0 });
+  hdMesh.setColorAt(i, _col.set(pick([0xf6a0b8, 0xf8b8c8, 0xffd0a0, 0xf090a8])));
+}
+let hdNextPlayer = 14;
+function addPlayerLantern(fromX, fromZ) {
+  const i = hdNextPlayer; hdNextPlayer = hdNextPlayer >= HD_N - 1 ? 14 : hdNextPlayer + 1;
+  const h = hds[i]; h.on = true; h.player = true; h.intro = 0; h.ang = Math.atan2(fromZ - PZ, fromX - PX); h.rad = rand(1.4, 2.6);
+  h.sx = PX + Math.cos(h.ang) * 4.6; h.sz = PZ + Math.sin(h.ang) * 4.6; // thả từ mép hồ
+  hdMesh.setColorAt(i, _col.set(0xffc0a0)); hdMesh.instanceColor.needsUpdate = true;
+  return h;
+}
+function updateLanternsHD(dt, night) {
+  for (let i = 0; i < HD_N; i++) {
+    const h = hds[i]; if (!h.on) { hdMesh.setMatrixAt(i, ZERO_M); hdFlame.setMatrixAt(i, ZERO_M); h.glow.visible = false; continue; }
+    h.ang += h.sp * dt; let x = PX + Math.cos(h.ang) * h.rad, z = PZ + Math.sin(h.ang) * h.rad;
+    if (h.intro < 1) { h.intro = Math.min(1, h.intro + dt * 0.35); const e = smooth(0, 1, h.intro); x = lerp(h.sx, x, e); z = lerp(h.sz, z, e); }
+    const y = 0.2 + Math.sin(time * 1.5 + h.ph) * 0.02;
+    _d.position.set(x, y, z); _d.rotation.set(Math.sin(time + h.ph) * 0.05, h.ang, 0); _d.scale.set(1, 1, 1); _d.updateMatrix(); hdMesh.setMatrixAt(i, _d.matrix);
+    _d.position.y = y + 0.38; const f = 1 + 0.2 * Math.sin(time * 9 + h.ph); _d.scale.set(f, f * 1.4, f); _d.updateMatrix(); hdFlame.setMatrixAt(i, _d.matrix);
+    h.glow.visible = true; h.glow.position.set(x, y + 0.35, z); h.glow.material.opacity = (0.25 + 0.6 * night) * (h.player ? 1.3 : 1) * f; h.glow.scale.setScalar(h.player ? 1.4 : 0.9);
+  }
+  hdMesh.instanceMatrix.needsUpdate = hdFlame.instanceMatrix.needsUpdate = true;
+}
+
+/* ---- Biển chỉ dẫn nổi trên các điểm hoạt động ---- */
+const SPOTS = [
+  { id: 'incense', label: 'Thắp hương', icon: '🕯️', cx: 0, cz: 8, r: 3.5, stand: [0, 10.3, PI], mark: [0, 3.5, 8] },
+  { id: 'bell', label: 'Thỉnh chuông', icon: '🔔', cx: -14, cz: -2, r: 3.9, stand: [-11.3, -2, -PI / 2], mark: [-11.6, 2.6, -2] },
+  { id: 'mo', label: 'Gõ mõ tụng kinh', icon: '🙏', cx: -5.25, cz: -15, r: 1.9, stand: [-5.25, -14.55, PI], mark: [-5.25, 2.5, -15.6] },
+  { id: 'fortune', label: 'Xin quẻ', icon: '📜', cx: 5.25, cz: -15, r: 1.9, stand: [5.25, -14.6, PI], mark: [5.25, 2.6, -15.6] },
+  { id: 'ribbon', label: 'Viết lời cầu an', icon: '🎗️', cx: 14, cz: 6, r: 3.7, stand: [11.6, 6, PI / 2], mark: [11.6, 2.8, 6] },
+  { id: 'lantern', label: 'Thả hoa đăng', icon: '🏮', cx: -13, cz: 14, r: 6.7, stand: null, mark: [-13, 1.9, 14] },
+];
+for (const s of SPOTS) {
+  const tex = canvasTex(512, 128, (g, w, h) => { g.fillStyle = 'rgba(40,18,20,0.72)'; g.beginPath(); g.roundRect ? g.roundRect(6, 10, w - 12, h - 20, 50) : g.rect(6, 10, w - 12, h - 20); g.fill(); g.strokeStyle = '#f3c969'; g.lineWidth = 5; g.stroke(); g.fillStyle = '#ffe7b0'; g.font = 'bold 50px system-ui,Segoe UI,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(s.icon + ' ' + s.label, w / 2, h / 2 + 2); });
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, fog: false })); sp.scale.set(2.6, 0.65, 1); sp.position.set(...s.mark); sp.renderOrder = 5; scene.add(sp); s.sprite = sp;
+}
+
+/* =========================================================
+   5. NHÂN VẬT NGƯỜI CHƠI (chibi áo lam, nhìn từ sau lưng)
+   ========================================================= */
+const P = { x: 0, z: 40, y: 0, yaw: PI, vx: 0, vz: 0, speed: 0, walkT: 0, pose: 'idle', bow: 0, lock: null, knock: 0 };
+const player = new THREE.Group(); scene.add(player);
+const pBody = new THREE.Group(); player.add(pBody);
+const lamM = ML(0x5d8fd6), lamD = ML(0x3d68aa), skinM = ML(0xf3cfa6), hairM = ML(0x2a1d18), pantM = ML(0x3c4f6a);
+const mk = (geo, mat, x, y, z, parent = pBody) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m; };
+const legs = [];
+for (const s of [-1, 1]) { const lg = new THREE.Group(); lg.position.set(s * 0.12, 0.34, 0); pBody.add(lg); mk(new THREE.CapsuleGeometry(0.075, 0.2, 3, 6), pantM, 0, -0.17, 0, lg); legs.push(lg); }
+mk(new THREE.CylinderGeometry(0.24, 0.4, 0.82, 12), lamM, 0, 0.62, 0);
+mk(new THREE.TorusGeometry(0.23, 0.04, 5, 14), lamD, 0, 0.97, 0).rotation.x = PI / 2;
+mk(new THREE.BoxGeometry(0.06, 0.6, 0.02), lamD, 0.05, 0.68, 0.33).rotation.x = -0.18;
+mk(new THREE.SphereGeometry(0.36, 16, 12), skinM, 0, 1.36, 0);
+mk(new THREE.SphereGeometry(0.375, 16, 10, 0, TAU, 0, PI * 0.56), hairM, 0, 1.4, -0.035);
+mk(new THREE.SphereGeometry(0.14, 10, 8), hairM, 0, 1.5, -0.34);
+for (const s of [-1, 1]) { mk(new THREE.SphereGeometry(0.035, 6, 4), hairM, s * 0.12, 1.36, 0.33); mk(new THREE.SphereGeometry(0.05, 6, 4), ML(0xf0a0a0), s * 0.2, 1.27, 0.3); }
+const arms = [];
+for (const s of [-1, 1]) { const ag = new THREE.Group(); ag.position.set(s * 0.3, 0.95, 0); pBody.add(ag); mk(new THREE.CapsuleGeometry(0.075, 0.3, 3, 6), lamM, 0, -0.21, 0, ag); mk(new THREE.SphereGeometry(0.075, 8, 6), skinM, 0, -0.43, 0, ag); arms.push(ag); }
+// Nén hương trên tay
+const handIncense = new THREE.Group(); handIncense.position.set(0, -0.46, 0.05); arms[1].add(handIncense); handIncense.visible = false;
+const handSticks = [];
+for (let k = 0; k < 3; k++) { const st = new THREE.Group(); st.position.x = (k - 1) * 0.05; const c = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.5, 4).translate(0, 0.25, 0), ML(0xb0442a)); const t = new THREE.Mesh(new THREE.SphereGeometry(0.028, 6, 4), new THREE.MeshBasicMaterial({ color: 0xff6a20 })); t.position.y = 0.5; st.add(c, t); st.rotation.x = 1.4; handIncense.add(st); handSticks.push(st); }
+
+/* =========================================================
+   6. KHÁCH HÀNH HƯƠNG AI (InstancedMesh cho nhẹ máy)
+   ========================================================= */
+const PIL_MAX = 60;
+const pilParts = {
+  body: new THREE.InstancedMesh(new THREE.CylinderGeometry(0.2, 0.33, 1.15, 8).translate(0, 0.575, 0), ML(0xffffff), PIL_MAX),
+  head: new THREE.InstancedMesh(new THREE.SphereGeometry(0.2, 10, 8).translate(0, 1.36, 0), ML(0xffffff), PIL_MAX),
+  hair: new THREE.InstancedMesh(new THREE.SphereGeometry(0.212, 10, 6, 0, TAU, 0, PI * 0.55).translate(0, 1.39, -0.025), ML(0xffffff), PIL_MAX),
+  hands: new THREE.InstancedMesh(new THREE.SphereGeometry(0.075, 6, 4).scale(1, 1.4, 0.8).translate(0, 1.0, 0.27), ML(0xf0c49a), PIL_MAX),
+  hat: new THREE.InstancedMesh(new THREE.ConeGeometry(0.4, 0.22, 12).translate(0, 1.6, 0), ML(0xe8d49a), PIL_MAX),
+  phone: new THREE.InstancedMesh(new THREE.BoxGeometry(0.11, 0.19, 0.02).translate(0, 1.38, 0.38), ML(0x22252a), PIL_MAX),
+};
+for (const k in pilParts) { const m = pilParts[k]; m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); m.frustumCulled = false; m.castShadow = (k === 'body' || k === 'head'); scene.add(m); }
+const ROBES = [0x5b7fa8, 0x8a6a4a, 0xd8a23a, 0xeeeae0, 0xb8323a, 0xe58aa0, 0x5a8a5a, 0x7a5a9a, 0x2e3e6a, 0xe07a3a, 0xcfc0a0, 0x6d93bd, 0x9a4a6a];
+const SKINS = [0xf1c9a0, 0xe5b88e, 0xd8a47a, 0xf5d2b0];
+const PRAYER_LINES = ['Cầu cho mẹ khoẻ', 'Mong thi đậu', 'Bình an cả nhà', 'Nam mô A Di Đà Phật', 'Mong ba luôn mạnh khoẻ', 'Cầu cho con ngoan, học giỏi', 'Năm mới an khang', 'Mong cả nhà sum vầy', 'Cầu cho ông bà sống lâu', 'Lòng thanh thản quá', 'Mong công việc suôn sẻ', 'Cầu cho mọi người bình an', 'Nam mô Bổn Sư Thích Ca Mâu Ni Phật', 'Mong em bé khoẻ mạnh', 'Gió chiều mát quá', 'Mong bạn bè đều vui', 'Cầu cho quê nhà mưa thuận gió hoà', 'Mong mình bớt nóng giận', 'Đèn lồng đẹp ghê'];
+const PHOTO_LINES = ['Cười lên nào!', 'Chụp một tấm nào!', 'Chùa đẹp ghê!', 'Đứng gần lư hương đi'];
+const pils = [];
+let visitCount = 0;
+for (let i = 0; i < PIL_MAX; i++) pils.push({ i, on: false, x: 0, z: 0, y: 0, yaw: 0, tyaw: 0, kind: 'adult', s: 1, speed: 1.2, state: 'idle', next: 'idle', timer: 0, path: [], face: null, ph: rand(0, 10), hat: false, actions: 0, maxActions: 4, seat: null, stuck: 0, lx: 0, lz: 0, incensed: false, group: false });
+function setupPilgrim(p) {
+  const r = Math.random(); p.kind = r < 0.2 ? 'elder' : r < 0.38 ? 'child' : 'adult';
+  p.s = p.kind === 'child' ? rand(0.62, 0.72) : rand(0.92, 1.06);
+  p.speed = p.kind === 'elder' ? rand(0.65, 0.85) : p.kind === 'child' ? rand(1.3, 1.7) : rand(1.05, 1.35);
+  p.hat = Math.random() < 0.28; p.actions = 0; p.maxActions = randi(3, 6); p.seat = null; p.stuck = 0; p.ph = rand(0, 10);
+  pilParts.body.setColorAt(p.i, _col.set(p.kind === 'elder' && Math.random() < 0.5 ? pick([0x8a6a4a, 0x5b7fa8, 0x7a6a5a]) : pick(ROBES)));
+  pilParts.head.setColorAt(p.i, _col.set(pick(SKINS)));
+  pilParts.hair.setColorAt(p.i, _col.set(p.kind === 'elder' ? pick([0xd8d4cc, 0xb8b4ac, 0xe8e4dc]) : pick([0x1e1612, 0x2a1d18, 0x3a2a20, 0x4a3020])));
+  pilParts.hands.setColorAt(p.i, _col.set(0xf0c49a)); pilParts.hat.setColorAt(p.i, _col.set(pick([0xe8d49a, 0xf0dca8, 0xdcc88a]))); pilParts.phone.setColorAt(p.i, _col.set(0x22252a));
+}
+function markColors() { for (const k in pilParts) if (pilParts[k].instanceColor) pilParts[k].instanceColor.needsUpdate = true; }
+function freePoint(x0, x1, z0, z1, r = 0.4) { for (let t = 0; t < 14; t++) { const x = rand(x0, x1), z = rand(z0, z1); if (isFree(x, z, r)) return [x, z]; } return [rand(-6, 6), rand(12, 26)]; }
+function entranceX(x) { return x < -2 ? -5.25 : x > 2 ? 5.25 : 0; }
+function planPath(p, tx, tz) {
+  const path = p.path; path.length = 0;
+  const out = p.z > 31.6, tOut = tz > 31.6;
+  if (inHall(p.x, p.z) && !inHall(tx, tz)) { const ex = entranceX(p.x); path.push([ex, -11.2], [ex, -8.4]); }
+  if (out !== tOut) { const gx = pick([-4.4, 0, 0, 4.4]); if (out) path.push([gx, 33.6], [gx, 29.4]); else path.push([gx, 29.4], [gx, 33.6]); }
+  if (!inHall(p.x, p.z) && inHall(tx, tz)) { const ex = entranceX(tx); path.push([ex, -8.4], [ex, -11.2]); }
+  path.push([tx, tz]);
+}
+function releaseSeat(p) { if (p.seat) { p.seat.by = -1; p.seat = null; } }
+function decide(p) {
+  releaseSeat(p);
+  p.actions++;
+  if (p.actions > p.maxActions && Math.random() < 0.7) { p.next = 'gone'; p.face = null; planPath(p, rand(-3, 3), 49); p.state = 'walk'; return; }
+  const r = Math.random(); let st;
+  if (p.kind === 'elder') st = r < 0.32 ? 'sit' : r < 0.6 ? 'pray' : r < 0.86 ? 'incense' : 'wander';
+  else if (p.kind === 'child') st = r < 0.32 ? 'wander' : r < 0.52 ? 'pond' : r < 0.7 ? 'photo' : r < 0.86 ? 'pray' : 'tree';
+  else st = r < 0.18 ? 'pray' : r < 0.36 ? 'incense' : r < 0.5 ? 'photo' : r < 0.62 ? 'sit' : r < 0.75 ? 'tree' : r < 0.87 ? 'pond' : 'wander';
+  let tx, tz, face = null;
+  if (st === 'sit') { const free = SEATS.filter(s => s.by < 0); if (free.length) { const s = pick(free); s.by = p.i; p.seat = s; tx = s.x; tz = s.z; face = PI; } else st = 'pray'; }
+  if (st === 'pray') { tx = rand(-6.5, 6.5); tz = rand(-7.3, -6.2); face = PI; }
+  else if (st === 'incense') { const a = rand(0, TAU); tx = Math.cos(a) * 2.15; tz = 8 + Math.sin(a) * 2.15; face = Math.atan2(-tx, 8 - tz); }
+  else if (st === 'photo') { [tx, tz] = freePoint(-12, 12, 0, 26); const L = pick([[0, -16], [0, 8], [14, 6], [0, 31]]); face = Math.atan2(L[0] - tx, L[1] - tz); }
+  else if (st === 'tree') { const a = rand(0.5 * PI, 1.5 * PI); tx = 14 + Math.cos(a) * 2.25; tz = 6 + Math.sin(a) * 2.25; face = Math.atan2(14 - tx, 6 - tz); }
+  else if (st === 'pond') { const a = rand(0, TAU); tx = clamp(PX + Math.cos(a) * 5.4, -20.4, 20); tz = PZ + Math.sin(a) * 5.4; face = Math.atan2(PX - tx, PZ - tz); }
+  else if (st === 'wander') { [tx, tz] = freePoint(-19, 19, -6, 29); }
+  p.next = st; p.face = face; planPath(p, tx, tz); p.state = 'walk'; p.stuck = 0;
+}
+function arrive(p) {
+  if (p.next === 'gone') { p.on = false; releaseSeat(p); hidePilgrim(p.i); return; }
+  p.state = p.next; if (p.face !== null) p.tyaw = p.face;
+  p.timer = { sit: rand(22, 45), pray: rand(6, 12), incense: rand(7, 10), photo: rand(4, 7), tree: rand(5, 9), pond: rand(6, 11), wander: rand(1.5, 5) }[p.state] || 3;
+  p.incensed = false;
+}
+function hidePilgrim(i) { for (const k in pilParts) pilParts[k].setMatrixAt(i, ZERO_M); }
+function spawnPilgrim(x, z, inside) {
+  const p = pils.find(q => !q.on); if (!p) return null;
+  setupPilgrim(p); p.on = true; p.x = x; p.z = z; p.y = heightAt(x, z); p.yaw = PI; p.tyaw = PI; p.path.length = 0;
+  if (inside) { p.state = 'idle'; p.timer = rand(0, 3); p.next = 'idle'; }
+  else { p.next = 'idle'; p.face = null; const [tx, tz] = freePoint(-8, 8, 14, 27); planPath(p, tx, tz); p.state = 'walk'; }
+  visitCount++; return p;
+}
+function spawnGroup() {
+  const n = randi(10, 20); let made = 0; const gx = pick([-4.4, 0, 4.4]);
+  for (let k = 0; k < n; k++) { const p = spawnPilgrim(gx + rand(-2.2, 2.2), 38 + k * 0.55 + rand(0, 1.5), false); if (!p) break; p.path.length = 0; p.path.push([gx + rand(-0.6, 0.6), 33.6], [gx + rand(-0.6, 0.6), 29.4]); const [tx, tz] = freePoint(-9, 9, 10, 26); p.path.push([tx, tz]); p.maxActions = randi(2, 4); made++; }
+  markColors(); if (made) toast(`Một đoàn ${made} khách hành hương vừa tới cổng tam quan 🙏`);
+}
+function initPilgrims() {
+  for (let k = 0; k < 40; k++) { const [x, z] = freePoint(-18, 18, -6, 29); const p = spawnPilgrim(x, z, true); if (k < 10) { const s = SEATS.find(q => q.by < 0); if (s) { s.by = p.i; p.seat = s; p.x = s.x; p.z = s.z; p.y = 0.6; p.state = 'sit'; p.tyaw = p.yaw = PI; p.timer = rand(5, 40); } } }
+  for (let i = 0; i < PIL_MAX; i++) if (!pils[i].on) hidePilgrim(i);
+  markColors(); visitCount += 900 + ((new Date().getDate() * 53 + new Date().getMonth() * 17) % 600);
+}
+let spawnT = 6, groupT = 35;
+function updatePilgrims(dt) {
+  spawnT -= dt; groupT -= dt;
+  const active = pils.reduce((a, p) => a + (p.on ? 1 : 0), 0);
+  if (spawnT <= 0) { spawnT = rand(5, 10); if (active < 42) { const p = spawnPilgrim(rand(-3, 3), rand(44, 48), false); if (p) markColors(); } }
+  if (groupT <= 0) { groupT = rand(70, 110); if (active < 46) spawnGroup(); else groupT = 20; }
+  for (const p of pils) {
+    if (!p.on) continue;
+    let moving = false;
+    if (p.state === 'walk') {
+      const w = p.path[0];
+      if (!w) arrive(p);
+      else {
+        const dx = w[0] - p.x, dz = w[1] - p.z, d = Math.hypot(dx, dz);
+        if (d < 0.4) { p.path.shift(); if (!p.path.length) arrive(p); }
+        else { const sp = p.speed * dt; p.x += dx / d * sp; p.z += dz / d * sp; p.tyaw = Math.atan2(dx, dz); moving = true; }
+      }
+    } else if (p.state !== 'gone') {
+      p.timer -= dt;
+      if (p.state === 'incense' && !p.incensed && p.timer < 4) { p.incensed = true; addSticksRandom(Math.random() < 0.6 ? 3 : 1, rand(70, 120)); }
+      if (p.state === 'sit' && p.timer <= 0) releaseSeat(p);
+      if (p.timer <= 0) decide(p);
+    }
+    if (!p.on) continue;
+    // tránh người chơi và các khách khác
+    const pdx = p.x - P.x, pdz = p.z - P.z, pd2 = pdx * pdx + pdz * pdz;
+    if (pd2 < 0.64 && pd2 > 1e-6) { const d = Math.sqrt(pd2); p.x = P.x + pdx / d * 0.8; p.z = P.z + pdz / d * 0.8; }
+    if (moving) {
+      for (const q of pils) { if (q === p || !q.on) continue; const dx = p.x - q.x, dz = p.z - q.z, d2 = dx * dx + dz * dz; if (d2 < 0.36 && d2 > 1e-6) { const d = Math.sqrt(d2), push = (0.6 - d) * 0.5; p.x += dx / d * push; p.z += dz / d * push; } }
+      collide(p, 0.28);
+      const moved = Math.hypot(p.x - p.lx, p.z - p.lz);
+      if (moved < p.speed * dt * 0.3) { p.stuck += dt; if (p.stuck > 2.2) { p.stuck = 0; if (p.path.length > 1) p.path.shift(); else decide(p); } } else p.stuck = Math.max(0, p.stuck - dt);
+    }
+    p.lx = p.x; p.lz = p.z;
+    p.y = lerp(p.y, heightAt(p.x, p.z), 1 - Math.exp(-dt * 10));
+    p.yaw = angLerp(p.yaw, p.tyaw, 1 - Math.exp(-dt * 7));
+    // tư thế
+    const sitting = p.state === 'sit' && p.seat && Math.hypot(p.x - p.seat.x, p.z - p.seat.z) < 0.5;
+    const praying = p.state === 'pray' || p.state === 'incense' || p.state === 'tree' || sitting;
+    const bob = moving ? Math.abs(Math.sin(time * p.speed * 6 + p.ph)) * 0.06 * p.s : 0;
+    let tilt = p.kind === 'elder' ? 0.08 : 0;
+    if (p.state === 'pray' || p.state === 'incense') tilt += Math.pow(Math.max(0, Math.sin(time * 0.9 + p.ph)), 6) * 0.4;
+    const sy = sitting ? 0.55 : 1;
+    _d.position.set(p.x, p.y + bob + (sitting ? 0.08 : 0), p.z); _d.rotation.set(tilt, p.yaw, 0, 'YXZ'); _d.scale.set(p.s, p.s * sy, p.s); _d.updateMatrix(); pilParts.body.setMatrixAt(p.i, _d.matrix);
+    _d.position.y -= (1 - sy) * 1.15 * p.s; _d.scale.set(p.s, p.s, p.s); _d.updateMatrix();
+    pilParts.head.setMatrixAt(p.i, _d.matrix); pilParts.hair.setMatrixAt(p.i, _d.matrix);
+    pilParts.hands.setMatrixAt(p.i, praying ? _d.matrix : ZERO_M);
+    pilParts.phone.setMatrixAt(p.i, p.state === 'photo' ? _d.matrix : ZERO_M);
+    pilParts.hat.setMatrixAt(p.i, p.hat && !inHall(p.x, p.z) && p.state !== 'pray' ? _d.matrix : ZERO_M);
+  }
+  for (const k in pilParts) pilParts[k].instanceMatrix.needsUpdate = true;
+}
+// Bong bóng chữ – chỉ gán cho khách AI, không bao giờ cho người chơi
+const bubbles = [];
+for (let k = 0; k < 3; k++) { const el = document.createElement('div'); el.className = 'bubble'; $('#bubbles').appendChild(el); bubbles.push({ el, p: null, t: 0 }); }
+let bubbleT = 2;
+const _bv = new THREE.Vector3();
+function updateBubbles(dt) {
+  bubbleT -= dt;
+  if (bubbleT <= 0) {
+    bubbleT = rand(2.2, 4.5);
+    const b = bubbles.find(b => !b.p);
+    if (b) {
+      const cand = pils.filter(p => p.on && p.state !== 'walk' && !bubbles.some(o => o.p === p) && Math.hypot(p.x - camera.position.x, p.z - camera.position.z) < 24);
+      if (cand.length) { const p = pick(cand); b.p = p; b.t = 4.2; b.el.textContent = p.state === 'photo' ? pick(PHOTO_LINES) : p.state === 'sit' ? 'Nam mô A Di Đà Phật' : pick(PRAYER_LINES); b.el.classList.add('on'); }
+    }
+  }
+  for (const b of bubbles) {
+    if (!b.p) continue;
+    b.t -= dt;
+    if (b.t <= 0 || !b.p.on || activity) { b.el.classList.remove('on'); if (b.t < -0.4 || !b.p.on || activity) b.p = null; continue; }
+    const p = b.p; const sit = p.state === 'sit' ? 0.5 : 0;
+    _bv.set(p.x, p.y + (1.75 - sit) * p.s + 0.15, p.z).project(camera);
+    if (_bv.z > 1 || Math.abs(_bv.x) > 1.1 || Math.abs(_bv.y) > 1.1) { b.el.style.opacity = '0'; continue; }
+    b.el.style.opacity = '';
+    const hw = b.el.offsetWidth / 2 + 6;
+    b.el.style.transform = `translate(${clamp((_bv.x * 0.5 + 0.5) * innerWidth, hw, innerWidth - hw)}px,${(-_bv.y * 0.5 + 0.5) * innerHeight}px) translate(-50%,calc(-100% - 6px))`;
+  }
+}
+
+/* =========================================================
+   7. ĐIỀU KHIỂN: cần ảo, bàn phím, kéo xoay góc nhìn, máy quay
+   ========================================================= */
+let camYaw = 0, camPitch = 0.33, camDist = 7.2, lastDrag = -10;
+let camFocus = null;
+const joy = { id: null, cx: 0, cy: 0, x: 0, y: 0 };
+const keys = new Set();
+const joyZone = $('#joyZone'), joyBase = $('#joyBase'), joyKnob = $('#joyKnob');
+function joyDefault() { joyBase.style.left = '86px'; joyBase.style.top = (innerHeight - 120) + 'px'; joyBase.style.opacity = '0.55'; joyKnob.style.transform = ''; }
+joyZone.addEventListener('pointerdown', e => { if (activity) return; e.preventDefault(); joy.id = e.pointerId; joy.cx = e.clientX; joy.cy = e.clientY; joy.x = joy.y = 0; try { joyZone.setPointerCapture(e.pointerId); } catch (er) {} joyBase.style.left = e.clientX + 'px'; joyBase.style.top = e.clientY + 'px'; joyBase.style.opacity = '1'; });
+joyZone.addEventListener('pointermove', e => { if (e.pointerId !== joy.id) return; let dx = e.clientX - joy.cx, dy = e.clientY - joy.cy; const L = Math.hypot(dx, dy), M = 50; if (L > M) { dx = dx / L * M; dy = dy / L * M; } joy.x = dx / M; joy.y = dy / M; joyKnob.style.transform = `translate(${dx}px,${dy}px)`; });
+const joyEnd = e => { if (e.pointerId !== joy.id) return; joy.id = null; joy.x = joy.y = 0; joyDefault(); };
+joyZone.addEventListener('pointerup', joyEnd); joyZone.addEventListener('pointercancel', joyEnd);
+const drag = { id: null, x: 0, y: 0 };
+canvas.addEventListener('pointerdown', e => { if (drag.id !== null) return; drag.id = e.pointerId; drag.x = e.clientX; drag.y = e.clientY; try { canvas.setPointerCapture(e.pointerId); } catch (er) {} });
+canvas.addEventListener('pointermove', e => { if (e.pointerId !== drag.id) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY; if (camFocus) return; camYaw -= dx * 0.0065; camPitch = clamp(camPitch + dy * 0.0045, 0.06, 1.05); lastDrag = time; });
+const dragEnd = e => { if (e.pointerId === drag.id) drag.id = null; };
+canvas.addEventListener('pointerup', dragEnd); canvas.addEventListener('pointercancel', dragEnd);
+canvas.addEventListener('wheel', e => { camDist = clamp(camDist + e.deltaY * 0.004, 4, 12); }, { passive: true });
+addEventListener('keydown', e => {
+  const tag = (e.target && e.target.tagName) || ''; if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  const k = e.key.toLowerCase(); keys.add(k);
+  if ((k === 'e' || k === ' ' || k === 'enter') && !activity && nearSpot && entered) { e.preventDefault(); startActivity(nearSpot.id); }
+  if (k === 'escape') { if ($('#bookModal').classList.contains('on')) closeBook(); else if ($('#shareModal').classList.contains('on')) closeShare(); else if (activity) endActivity(); }
+});
+addEventListener('keyup', e => keys.delete(e.key.toLowerCase()));
+addEventListener('blur', () => keys.clear());
+
+function updatePlayer(dt) {
+  let ix = joy.x, iy = joy.y;
+  if (keys.has('w') || keys.has('arrowup')) iy -= 1; if (keys.has('s') || keys.has('arrowdown')) iy += 1;
+  if (keys.has('a') || keys.has('arrowleft')) ix -= 1; if (keys.has('d') || keys.has('arrowright')) ix += 1;
+  const il = Math.hypot(ix, iy); if (il > 1) { ix /= il; iy /= il; }
+  if (activity || !entered) { ix = iy = 0; }
+  const fx = -Math.sin(camYaw), fz = -Math.cos(camYaw), rx = -fz, rz = fx;
+  const wx = fx * -iy + rx * ix, wz = fz * -iy + rz * ix;
+  const MAXS = 4.0;
+  const k = 1 - Math.exp(-dt * 10);
+  P.vx = lerp(P.vx, wx * MAXS, k); P.vz = lerp(P.vz, wz * MAXS, k);
+  if (P.lock) { // tự đi tới chỗ làm hoạt động
+    const dx = P.lock[0] - P.x, dz = P.lock[1] - P.z, d = Math.hypot(dx, dz);
+    if (d > 0.05) { const s = Math.min(d, 3 * dt); P.x += dx / d * s; P.z += dz / d * s; P.speed = d > 0.1 ? 2.5 : 0; if (d > 0.3) P.yaw = angLerp(P.yaw, Math.atan2(dx, dz), 1 - Math.exp(-dt * 10)); else P.yaw = angLerp(P.yaw, P.lock[2], 1 - Math.exp(-dt * 8)); }
+    else { P.speed = 0; P.yaw = angLerp(P.yaw, P.lock[2], 1 - Math.exp(-dt * 8)); }
+    P.vx = P.vz = 0; collide(P, 0.36);
+  } else {
+    P.x += P.vx * dt; P.z += P.vz * dt; P.speed = Math.hypot(P.vx, P.vz);
+    if (P.speed > 0.3) P.yaw = angLerp(P.yaw, Math.atan2(P.vx, P.vz), 1 - Math.exp(-dt * 12));
+    collide(P, 0.36);
+    // máy quay tự vòng ra sau lưng khi đi thẳng
+    if (P.speed > 1 && time - lastDrag > 1.2 && iy < -0.5 && Math.abs(ix) < 0.5) camYaw = angLerp(camYaw, P.yaw + PI, 1 - Math.exp(-dt * 1.2));
+  }
+  P.y = lerp(P.y, heightAt(P.x, P.z), 1 - Math.exp(-dt * 12));
+  player.position.set(P.x, P.y, P.z); player.rotation.y = P.yaw;
+  // hoạt hình
+  const sf = clamp(P.speed / MAXS, 0, 1); P.walkT += dt * (4 + P.speed * 2.4);
+  const sw = Math.sin(P.walkT) * 0.7 * sf;
+  legs[0].rotation.x = sw; legs[1].rotation.x = -sw;
+  pBody.position.y = Math.abs(Math.sin(P.walkT)) * 0.06 * sf;
+  const pk = 1 - Math.exp(-dt * 10);
+  let lx = -sw * 0.8, lz = 0.08, rx2 = sw * 0.8, rz2 = -0.08;
+  if (P.pose === 'pray') { lx = -1.35; lz = 0.55; rx2 = -1.35; rz2 = -0.55; }
+  else if (P.pose === 'hold') { lx = -0.3; lz = 0.1; rx2 = -1.2; rz2 = -0.2; }
+  else if (P.pose === 'knock') { lx = -1.0; lz = 0.3; rx2 = -1.1 + P.knock * 0.6; rz2 = -0.2; }
+  else if (P.pose === 'reach') { lx = -0.4; lz = 0.1; rx2 = -2.4; rz2 = -0.3; }
+  arms[0].rotation.x = lerp(arms[0].rotation.x, lx, pk); arms[0].rotation.z = lerp(arms[0].rotation.z, lz, pk);
+  arms[1].rotation.x = lerp(arms[1].rotation.x, rx2, pk); arms[1].rotation.z = lerp(arms[1].rotation.z, rz2, pk);
+  P.knock = Math.max(0, (P.knock || 0) - dt * 6);
+  pBody.rotation.x = lerp(pBody.rotation.x, P.bow, pk);
+}
+const camLook = new THREE.Vector3(0, 2, 30), camPos = new THREE.Vector3(0, 4, 46), _ct = new THREE.Vector3(), _cl = new THREE.Vector3();
+function updateCamera(dt, snap = false) {
+  let fx, fy, fz, yaw, pitch, dist;
+  if (camFocus) { fx = camFocus.x; fy = camFocus.y; fz = camFocus.z; yaw = camFocus.yaw; pitch = camFocus.pitch; dist = camFocus.dist * (camera.aspect < 0.8 && camFocus.dist > 5 ? 1.45 : 1); }
+  else { fx = P.x; fy = P.y + 1.2; fz = P.z; yaw = camYaw; pitch = camPitch; dist = camDist; if (inHall(P.x, P.z)) dist = Math.min(dist, 5.2); }
+  const cp = Math.cos(pitch);
+  _ct.set(fx + Math.sin(yaw) * cp * dist, fy + Math.sin(pitch) * dist, fz + Math.cos(yaw) * cp * dist);
+  if (!camFocus && inHall(P.x, P.z)) { _ct.x = clamp(_ct.x, -10.3, 10.3); _ct.z = Math.max(_ct.z, -21.4); _ct.y = Math.min(_ct.y, 4.4); }
+  _ct.x = clamp(_ct.x, -20.6, 20.6); _ct.z = clamp(_ct.z, -26.6, 70); _ct.y = Math.max(_ct.y, heightAt(_ct.x, _ct.z) + 0.5);
+  _cl.set(fx, fy + (camFocus ? camFocus.off : 0), fz);
+  const k = snap ? 1 : 1 - Math.exp(-dt * (camFocus ? 3.2 : 8));
+  camPos.lerp(_ct, k); camLook.lerp(_cl, k);
+  camera.position.copy(camPos); camera.lookAt(camLook);
+}
+
+/* ---- Phát hiện điểm hoạt động gần người chơi ---- */
+let nearSpot = null;
+const actionBtn = $('#actionBtn');
+function updateSpots() {
+  let best = null, bd = 1e9;
+  for (const s of SPOTS) {
+    const d = Math.hypot(P.x - s.cx, P.z - s.cz);
+    if (d < s.r && d < bd) { bd = d; best = s; }
+    const dc = camera.position.distanceTo(s.sprite.position);
+    s.sprite.material.opacity = activity ? 0 : clamp((32 - dc) / 8, 0, 1) * (best === s ? 0.35 : 0.95);
+    s.sprite.position.y = s.mark[1] + Math.sin(time * 1.6 + s.cx) * 0.08;
+  }
+  if (activity || !entered) best = null;
+  if (best !== nearSpot) {
+    nearSpot = best;
+    if (best) { $('#actIcon').textContent = best.icon; $('#actLabel').textContent = best.label; actionBtn.style.display = 'flex'; }
+    else actionBtn.style.display = 'none';
+  }
+}
+actionBtn.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (nearSpot && !activity) startActivity(nearSpot.id); });
+
+/* =========================================================
+   8. CÁC HOẠT ĐỘNG
+   ========================================================= */
+let activity = null;
+const panel = $('#panel'), sheet = $('#sheet');
+function openPanel(html, closable = true) { sheet.innerHTML = (closable ? '<button class="x" data-close aria-label="Đóng">✕</button>' : '') + html; panel.style.display = 'flex'; sheet.scrollTop = 0; }
+function closePanel() { panel.style.display = 'none'; sheet.innerHTML = ''; }
+sheet.addEventListener('click', e => { if (e.target.closest('[data-close]')) { Sound.tick(); endActivity(); } });
+function startActivity(id) {
+  if (activity) return; Sound.init(); Sound.tick();
+  activity = { id, t: 0, d: {} }; nearSpot = null; actionBtn.style.display = 'none';
+  joy.x = joy.y = 0; keys.clear();
+  const s = SPOTS.find(q => q.id === id);
+  if (s && s.stand) P.lock = s.stand.slice();
+  ACT[id].start(activity);
+}
+function endActivity() {
+  if (!activity) return; const a = activity; activity = null;
+  if (ACT[a.id].end) ACT[a.id].end(a);
+  closePanel(); P.pose = 'idle'; P.bow = 0; P.lock = null; handIncense.visible = false; Sound.setBgMo(true);
+  if (camFocus) { camYaw = camFocus.yaw; camFocus = null; }
+}
+function focus(x, y, z, yaw, dist, pitch, off) { camFocus = { x, y, z, yaw, dist, pitch, off }; }
+function shakeScreen() { canvas.classList.remove('shake'); void canvas.offsetWidth; canvas.classList.add('shake'); vibrate([30, 40, 30]); }
+
+const ACT = {};
+/* ---- 8.1 THẮP HƯƠNG: chọn 1 hoặc 3 nén ---- */
+ACT.incense = {
+  start(a) {
+    focus(0, 2.2, 8.6, 0.65, 6.2, 0.25, -0.9);
+    openPanel(`<h3>🕯️ Thắp hương</h3><p>Thành tâm chọn số nén hương:</p>
+      <div class="row"><button class="btn big" data-n="1">1 nén</button><button class="btn big primary" data-n="3">3 nén</button></div>
+      <p class="small">Nén hương là lòng thành kính, nhắc mình sống hiền hoà, biết ơn.</p>`);
+    sheet.querySelectorAll('[data-n]').forEach(b => b.addEventListener('click', () => { a.d.n = +b.dataset.n; a.d.phase = 1; a.t = 0; closePanel(); Sound.whoosh(); P.pose = 'hold'; handIncense.visible = true; handSticks.forEach((s, i) => s.visible = a.d.n === 3 || i === 1); }));
+  },
+  update(a, dt) {
+    if (!a.d.phase) return;
+    a.t += dt;
+    if (a.d.phase === 1 && a.t > 1.0) { a.d.phase = 2; P.pose = 'pray'; }
+    if (a.d.phase === 2) { const bt = a.t - 1.0; P.bow = bt < 3 ? Math.pow(Math.max(0, Math.sin(bt / 3 * PI * 3)), 2) * 0.35 : 0; if (bt > 3.2) { a.d.phase = 3; P.pose = 'reach'; P.bow = 0.15; } }
+    if (a.d.phase === 3 && a.t > 4.7) { a.d.phase = 4; handIncense.visible = false; addSticksRandom(a.d.n, 150, true); smokeBoost = 3; Sound.chime(); P.pose = 'pray'; P.bow = 0; }
+    if (a.d.phase === 4 && a.t > 6.0) {
+      a.d.phase = 5; Save.data.incense++; Save.save(); visitCount++; refreshHud();
+      toast(a.d.n === 3 ? 'Ba nén hương thơm đã dâng lên. Chúc bạn và gia đình an lạc 🙏' : 'Nén hương thơm đã dâng lên. Mong lòng bạn luôn thanh thản 🙏', 3600);
+      endActivity();
+    }
+  }
+};
+/* ---- 8.2 THỈNH CHUÔNG: chạm đúng lúc vòng sáng co vào ---- */
+let bellSway = 0, bellSwayV = 0, strikerA = 0, strikerT = -1;
+ACT.bell = {
+  start(a) {
+    focus(-14, 2.6, -2, PI / 2 + 0.25, 6.8, 0.12, -1.3);
+    Object.assign(a.d, { strikes: 0, perfect: 0, phase: 'ring', rt: 0, cd: 0, s: 2.3 });
+    openPanel(`<h3>🔔 Thỉnh chuông</h3><p class="small">Chạm vào vòng khi vòng sáng co về vừa khít vòng vàng. Thỉnh 3 tiếng.</p>
+      <div class="bellpad" id="bellPad"><div class="bg-target"></div><div class="bg-ring" id="bgRing"></div><div class="bg-label" id="bgLabel">Chạm</div></div>
+      <div class="dots" id="bellDots">○○○</div>`);
+    $('#bellPad').addEventListener('pointerdown', e => { e.preventDefault(); bellTap(a); });
+  },
+  update(a, dt) {
+    const d = a.d; const ring = $('#bgRing'); if (!ring) return;
+    if (d.phase === 'ring') { d.rt += dt; d.s = 2.3 - (d.rt / 1.8) * 1.85; if (d.s < 0.45) { d.rt = 0; d.s = 2.3; } ring.style.transform = `scale(${d.s})`; ring.style.opacity = 1; strikerA = lerp(strikerA, 0.32 * clamp(d.rt / 1.4, 0, 1), 0.2); }
+    else if (d.phase === 'wait') { d.cd -= dt; ring.style.opacity = 0; if (d.cd <= 0) { if (d.strikes >= 3) bellFinish(a); else { d.phase = 'ring'; d.rt = 0; $('#bgLabel').textContent = 'Chạm'; } } }
+  }
+};
+function bellTap(a) {
+  const d = a.d; if (d.phase !== 'ring') return;
+  const err = Math.abs(d.s - 1);
+  if (err > 0.34) { $('#bgLabel').textContent = d.s > 1 ? 'Chờ thêm chút…' : 'Hơi muộn rồi'; Sound.soft(); d.rt = 0; return; }
+  const perfect = err < 0.13;
+  d.strikes++; if (perfect) d.perfect++;
+  strikerT = 0; d.strength = perfect ? 1 : 0.55;
+  $('#bgLabel').textContent = perfect ? 'Ngân vang ✨' : 'Boong…';
+  $('#bellDots').textContent = '●'.repeat(d.strikes) + '○'.repeat(3 - d.strikes);
+  d.phase = 'wait'; d.cd = perfect ? 3.4 : 2.4;
+  setTimeout(() => { Sound.bell(d.strength, 98); bellSwayV += perfect ? 0.09 : 0.05; if (perfect) shakeScreen(); }, 110);
+}
+function bellFinish(a) {
+  const d = a.d; d.phase = 'done'; Save.data.bells++; Save.save();
+  const msg = d.perfect === 3 ? 'Ba tiếng chuông ngân vang trọn vẹn. Lòng thật thư thái.' : d.perfect >= 1 ? 'Tiếng chuông lan xa trong chiều. Tâm dịu lại rồi đó.' : 'Tiếng chuông đã vang. Cứ thong thả, lần sau sẽ ngân dài hơn.';
+  openPanel(`<div class="result"><h3>🔔 Thỉnh chuông</h3><p style="font-size:30px;margin:4px">${'🔔'.repeat(d.perfect) + '🔕'.repeat(3 - d.perfect)}</p><p>${msg}</p><p class="small">“Nghe chuông, phiền não nhẹ vơi”</p>
+    <div class="row"><button class="btn" id="bAgain">Thỉnh lại</button><button class="btn primary" data-close>Xong</button></div></div>`);
+  $('#bAgain').addEventListener('click', () => { Object.assign(d, { strikes: 0, perfect: 0, phase: 'ring', rt: 0 }); ACT.bell.start(a); });
+}
+function updateBellObj(dt) {
+  if (strikerT >= 0) { strikerT += dt; if (strikerT < 0.11) strikerA = lerp(strikerA, -0.05, 0.6); else if (strikerT < 0.5) strikerA = lerp(strikerA, 0.12, 0.15); else { strikerA = lerp(strikerA, 0, 0.1); if (strikerT > 1.5) strikerT = -1; } }
+  else if (!activity || activity.id !== 'bell') strikerA = lerp(strikerA, 0, 0.1);
+  strikerPivot.rotation.z = strikerA;
+  bellSwayV += -bellSway * 6 * dt; bellSwayV *= Math.exp(-dt * 0.8); bellSway += bellSwayV * dt * 8;
+  bellPivot.rotation.z = bellSway;
+}
+/* ---- 8.3 GÕ MÕ TỤNG KINH: trò theo nhịp 30 giây ---- */
+const MO_IV = 60 / 72, MO_LEN = 30;
+ACT.mo = {
+  start(a) {
+    focus(-5.25, 1.3, -15.3, PI / 2 - 0.06, 5.2, 0.3, -0.9);
+    P.pose = 'knock'; Sound.setBgMo(false);
+    moIntro(a);
+  },
+  update(a, dt) {
+    const d = a.d; if (d.phase !== 'play') return;
+    const now = performance.now() / 1000 - d.t0;
+    // hẹn trước nhịp dẫn (âm trầm nhẹ)
+    const ctx = Sound.ctx;
+    if (ctx) while (d.sched < d.n && d.ctx0 + d.sched * MO_IV < ctx.currentTime + 0.2) { Sound.pulse(d.ctx0 + d.sched * MO_IV); d.sched++; }
+    // nhịp bị bỏ lỡ
+    for (let i = d.miss; i < d.n; i++) { if (d.judged[i]) { if (i === d.miss) d.miss++; continue; } if (now > i * MO_IV + 0.38) { d.judged[i] = 1; d.cnt.m++; moFb('Lệch nhịp', '#a0602a'); d.miss = i + 1; } else break; }
+    let nb = -1; for (let i = d.miss; i < d.n; i++) if (!d.judged[i]) { nb = i; break; }
+    const ring = $('#moRing'); if (!ring) return;
+    if (nb >= 0) { const ph = (nb * MO_IV - now) / MO_IV; const sc = 0.88 + Math.max(0, ph) * 0.9; ring.style.transform = `scale(${sc})`; ring.style.opacity = ph > 1 ? 0.25 : 1; }
+    const left = Math.max(0, Math.ceil(d.n * MO_IV - now)); $('#moTime').textContent = left;
+    if (now < 0) { $('#moFb').textContent = 'Chuẩn bị… ' + Math.ceil(-now); }
+    if (now > (d.n - 1) * MO_IV + 0.7) moFinish(a);
+  },
+  end(a) { a.d.phase = 'off'; }
+};
+function moIntro(a) {
+  a.d.phase = 'intro';
+  openPanel(`<h3>🙏 Gõ mõ tụng kinh</h3><p>Ngồi ngay ngắn, thở chậm. Chạm vào mõ khi vòng vàng co sát vào mõ.</p>
+    <p class="small">30 giây · chấm điểm: <b>Tĩnh tâm</b> / <b>Được</b> / <b>Lệch nhịp</b> · cuối lượt nhận điểm “Tâm an”.</p>
+    <div class="row"><button class="btn primary big" id="moGo">Bắt đầu</button></div>`);
+  $('#moGo').addEventListener('click', () => moBegin(a));
+}
+function moBegin(a) {
+  const d = a.d; Sound.init();
+  Object.assign(d, { phase: 'play', n: Math.floor(MO_LEN / MO_IV), judged: [], cnt: { p: 0, g: 0, m: 0 }, sum: 0, strays: 0, miss: 0, sched: 0 });
+  const lead = 3;
+  d.t0 = performance.now() / 1000 + lead; d.ctx0 = (Sound.ctx ? Sound.ctx.currentTime : 0) + lead;
+  openPanel(`<h3>🙏 Gõ mõ tụng kinh</h3>
+    <div class="mo-wrap" id="moWrap"><div class="mo-ring" id="moRing"></div><button class="mo-btn" id="moBtn">MÕ</button></div>
+    <div class="mo-fb" id="moFb"></div>
+    <div class="mo-stats"><span>⏱ <b id="moTime">30</b>s</span><span>Tĩnh tâm <b id="moP">0</b></span><span>Được <b id="moG">0</b></span><span>Lệch <b id="moM">0</b></span></div>`);
+  $('#moWrap').addEventListener('pointerdown', e => { e.preventDefault(); moTap(a); });
+}
+let moFbT = 0;
+function moFb(txt, color) { const el = $('#moFb'); if (!el) return; el.textContent = txt; el.style.color = color; const d = activity && activity.d; if (d && d.cnt) { $('#moP').textContent = d.cnt.p; $('#moG').textContent = d.cnt.g; $('#moM').textContent = d.cnt.m; } }
+function moTap(a) {
+  const d = a.d; if (d.phase !== 'play') return;
+  const now = performance.now() / 1000 - d.t0;
+  Sound.knock(); P.knock = 1;
+  if (now < -0.4) return;
+  let bi = -1, be = 9; for (let i = Math.max(0, d.miss - 1); i < Math.min(d.n, d.miss + 3); i++) { if (d.judged[i]) continue; const e = Math.abs(now - i * MO_IV); if (e < be) { be = e; bi = i; } }
+  if (bi < 0 || be > 0.38) { d.strays++; d.cnt.m++; moFb('Lệch nhịp', '#a0602a'); return; }
+  d.judged[bi] = 1;
+  if (be < 0.09) { d.sum += 1; d.cnt.p++; moFb('Tĩnh tâm ✨', '#8e1f15'); }
+  else if (be < 0.2) { d.sum += 0.65; d.cnt.g++; moFb('Được', '#b0701a'); }
+  else { d.sum += 0.15; d.cnt.m++; moFb('Lệch nhịp', '#a0602a'); }
+}
+function moFinish(a) {
+  const d = a.d; d.phase = 'done';
+  const score = clamp(Math.round(100 * d.sum / d.n - d.strays * 1.5), 0, 100);
+  const praise = score >= 90 ? 'Tâm tĩnh như mặt hồ thu. Thật đáng quý!' : score >= 75 ? 'Nhịp mõ đều và an. Bạn đã rất tập trung.' : score >= 55 ? 'Khá lắm! Thở chậm thêm chút, tâm sẽ càng an.' : score >= 30 ? 'Khởi đầu vậy là tốt rồi. Cứ thong thả, nhịp sẽ đến.' : 'Không sao cả. Mỗi lần ngồi lại là một lần tâm dịu xuống.';
+  const isBest = score > Save.data.best; if (isBest) Save.data.best = score; Save.data.mo++; Save.save(); refreshHud();
+  Sound.chime();
+  openPanel(`<div class="result"><h3>Điểm Tâm an</h3><div class="score">${score}</div><p class="small">/ 100 ${isBest ? '· cao nhất của bạn 🌸' : ''}</p><p>${praise}</p>
+    <p class="small">Tĩnh tâm ${d.cnt.p} · Được ${d.cnt.g} · Lệch nhịp ${d.cnt.m}</p>
+    <div class="row"><button class="btn" id="moAgain">Gõ lại</button><button class="btn" id="moShare">📤 Chia sẻ</button><button class="btn primary" data-close>Xong</button></div></div>`);
+  $('#moAgain').addEventListener('click', () => moBegin(a));
+  $('#moShare').addEventListener('click', () => { lastScore = score; openShare(); });
+}
+/* ---- 8.4 VIẾT LỜI CẦU AN: dải lụa đỏ hoặc đèn hoa đăng ---- */
+const BAD_WORDS = ['địt', 'đụ', 'đéo', 'đếch', 'lồn', 'cặc', 'buồi', 'đĩ', 'đm', 'đmm', 'dm', 'dmm', 'đcm', 'dcm', 'đkm', 'dkm', 'vcl', 'vl', 'vkl', 'clgt', 'cc', 'cứt', 'ngu', 'óc chó', 'chó chết', 'mẹ mày', 'con mẹ mày', 'thằng chó', 'con đĩ', 'fuck', 'shit', 'bitch', 'dick', 'đít', 'dit me', 'du ma', 'đù má', 'đậu má'];
+function hasBadWord(text) {
+  const s = ' ' + text.toLowerCase().normalize('NFC').replace(/[^\p{L}\p{N}]+/gu, ' ') + ' ';
+  const compact = s.replace(/\s+/g, '');
+  // khớp theo từ; vài từ rất thô thì bắt cả khi viết dính liền
+  return BAD_WORDS.some(w => s.includes(' ' + w + ' ')) || ['đéo', 'lồn', 'cặc', 'buồi', 'fuck', 'shit', 'bitch'].some(w => compact.includes(w));
+}
+const PRAY_TPL = { 'Gia đình': 'Cầu cho gia đình con luôn bình an, sum vầy.', 'Sức khoẻ': 'Mong cha mẹ luôn mạnh khoẻ, vui vẻ.', 'Thi cử': 'Mong con bình tĩnh, tự tin trong kỳ thi sắp tới.', 'Bình an': 'Cầu một năm an yên cho mọi người.', 'Công việc': 'Mong công việc thuận lợi, đồng nghiệp hoà thuận.' };
+ACT.ribbon = { start(a) { prayerForm(a, 'ribbon'); }, update: prayerUpdate };
+ACT.lantern = {
+  start(a) { const ang = Math.atan2(P.z - PZ, P.x - PX); const sx = clamp(PX + Math.cos(ang) * 5.3, -20.4, 20.4), sz = PZ + Math.sin(ang) * 5.3; P.lock = [sx, sz, Math.atan2(PX - sx, PZ - sz)]; prayerForm(a, 'lantern'); },
+  update: prayerUpdate
+};
+function prayerForm(a, mode) {
+  a.d.mode = mode; a.d.phase = 'form';
+  openPanel(`<h3>✍️ Viết lời cầu an</h3>
+    <div class="chips">${Object.keys(PRAY_TPL).map(k => `<button class="chip" data-tpl="${k}">${k}</button>`).join('')}</div>
+    <textarea id="prayText" maxlength="120" rows="3" placeholder="Ví dụ: Cầu cho cha mẹ luôn mạnh khoẻ, cả nhà bình an."></textarea>
+    <div class="count"><span id="prayCount">0</span>/120</div>
+    <div class="seg"><button data-m="ribbon">🎗️ Dải lụa đỏ<br><small>treo cây bồ đề</small></button><button data-m="lantern">🏮 Đèn hoa đăng<br><small>thả hồ sen</small></button></div>
+    <div class="err" id="prayErr"></div>
+    <button class="btn primary big" id="praySend" style="width:100%">Gửi lời cầu</button>`);
+  const ta = $('#prayText'), cnt = $('#prayCount');
+  const setMode = m => { a.d.mode = m; sheet.querySelectorAll('[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === m)); };
+  setMode(mode);
+  sheet.querySelectorAll('[data-m]').forEach(b => b.addEventListener('click', () => { Sound.tick(); setMode(b.dataset.m); }));
+  sheet.querySelectorAll('[data-tpl]').forEach(b => b.addEventListener('click', () => { ta.value = PRAY_TPL[b.dataset.tpl].slice(0, 120); cnt.textContent = ta.value.length; $('#prayErr').textContent = ''; }));
+  ta.addEventListener('input', () => { cnt.textContent = ta.value.length; $('#prayErr').textContent = ''; });
+  $('#praySend').addEventListener('click', () => {
+    const text = ta.value.replace(/\s+/g, ' ').trim().slice(0, 120);
+    if (text.length < 2) { $('#prayErr').textContent = 'Bạn viết vài chữ cho lời cầu nhé.'; return; }
+    if (hasBadWord(text)) { $('#prayErr').textContent = 'Lời cầu nên dùng lời lẽ hiền hoà. Bạn sửa lại một chút nhé 🌸'; return; }
+    ta.blur(); a.d.text = text; a.d.phase = 'anim'; a.t = 0; closePanel(); Sound.whoosh();
+    if (a.d.mode === 'ribbon') { P.lock = [11.6, 6, PI / 2]; focus(14, 3.4, 6, -PI / 2 - 0.35, 6.5, 0.12, -1.0); P.pose = 'reach'; a.d.obj = addPlayerRibbon(text); }
+    else { focus(PX, 0.6, PZ, Math.atan2(P.x - PX, P.z - PZ) + 0.5, 8.5, 0.55, -1.2); P.pose = 'pray'; addPlayerLantern(P.x, P.z); }
+    Save.data.prayers.unshift({ text, type: a.d.mode, ts: Date.now() }); Save.data.prayers = Save.data.prayers.slice(0, 100); Save.save(); visitCount++; refreshHud();
+  });
+}
+function prayerUpdate(a, dt) {
+  if (a.d.phase !== 'anim') return; a.t += dt;
+  if (a.d.mode === 'ribbon' && a.d.obj) { const k = clamp(a.t / 1.4, 0, 1); a.d.obj.scale.y = Math.max(0.01, smooth(0, 1, k)); if (a.t > 1.5) P.pose = 'pray'; }
+  if (a.t > 2.6) {
+    a.d.phase = 'done'; Sound.chime();
+    const where = a.d.mode === 'ribbon' ? 'Dải lụa đỏ mang lời cầu của bạn đã được treo lên cây bồ đề.' : 'Chiếc đèn hoa đăng mang lời cầu của bạn đang trôi nhẹ trên hồ sen.';
+    openPanel(`<div class="result"><h3>🌸 Lời cầu đã gửi gắm</h3><p>${where}</p><div class="prayCard">“${escapeHtml(a.d.text)}”</div>
+      <p class="small">Mong bạn luôn giữ tâm an. Điều lành thường đến từ những việc lành nhỏ mỗi ngày.</p>
+      <div class="row"><button class="btn" id="prShare">📤 Chia sẻ</button><button class="btn primary" data-close>Xong</button></div></div>`);
+    $('#prShare').addEventListener('click', () => openShare());
+  }
+}
+/* ---- 8.5 XIN QUẺ ĐẦU NĂM (giải trí): lắc ống xăm ---- */
+const FORTUNES = [
+  'Tâm an thì việc gì cũng nhẹ. Năm nay bạn sẽ có nhiều buổi chiều thảnh thơi.',
+  'Người thân quây quần, tiếng cười rộn rã. Hãy dành thêm thời gian cho gia đình.',
+  'Hạt giống tốt bạn gieo hôm nay sẽ nảy mầm thành niềm vui ngày mai.',
+  'Đi chậm một chút, bạn sẽ thấy con đường đẹp hơn.',
+  'Một lời nói hiền hoà có thể sưởi ấm cả một ngày dài.',
+  'Năm mới mở ra nhiều điều để học hỏi. Cứ tò mò và kiên nhẫn.',
+  'Bạn bè tốt sẽ ở bên. Hãy trân trọng những cuộc trò chuyện chân thành.',
+  'Như hoa sen giữa hồ, bạn giữ được sự trong trẻo của mình.',
+  'Mỗi sáng thức dậy là một món quà. Mở quà bằng một nụ cười nhé.',
+  'Việc khó sẽ dễ hơn khi chia nhỏ ra. Từng bước, từng bước một.',
+  'Lòng biết ơn khiến những điều bình thường trở nên quý giá.',
+  'Có những ngày mưa để cây xanh hơn. Mọi chuyện đều có ý nghĩa của nó.',
+  'Hãy dành cho mình một tách trà và mười phút yên tĩnh mỗi ngày.',
+  'Bạn sẽ gặp một người khiến bạn mỉm cười thật lâu.',
+  'Sự chăm chỉ của bạn đang âm thầm đơm hoa.',
+  'Tha thứ cho người khác cũng là để lòng mình nhẹ tênh.',
+  'Năm nay hợp để học một điều mới mà bạn ấp ủ từ lâu.',
+  'Một bữa cơm nhà ấm áp là niềm vui giản dị nhất.',
+  'Gió thuận sẽ đến với người biết kiên nhẫn chờ đợi.',
+  'Bạn có nhiều điều tốt đẹp hơn bạn nghĩ. Hãy tin vào mình.',
+  'Ngủ đủ giấc, sống điều độ, tâm trí sẽ sáng như trăng rằm.',
+  'Hãy gọi cho người bạn thương. Có thể họ cũng đang nhớ bạn.',
+  'Việc thiện nhỏ mỗi ngày sẽ góp thành một năm an lành.',
+  'Như cây bồ đề, rễ càng sâu thì càng vững trước gió.',
+  'Bình tĩnh là người bạn đồng hành tốt nhất trong mọi kỳ thi.',
+  'Một nụ cười trao đi, nhiều nụ cười trở lại.',
+  'Năm nay nhà bạn sẽ có nhiều dịp sum vầy.',
+  'Lắng nghe nhiều hơn, bạn sẽ hiểu người thân hơn.',
+  'Con đường bạn chọn sẽ dần sáng tỏ. Cứ vững bước.',
+  'Hãy để chuyện cũ trôi đi như đèn hoa đăng trên mặt hồ.',
+  'Bạn sẽ tìm thấy niềm vui trong những điều thật nhỏ bé.',
+  'Một chuyến đi sẽ mang lại cho bạn nhiều kỷ niệm đẹp.',
+  'Sống chậm lại, thở sâu hơn, mọi thứ rồi sẽ ổn.',
+  'Bạn là ngọn đèn nhỏ sưởi ấm những người xung quanh.',
+  'Dọn dẹp góc nhỏ của mình, lòng cũng gọn gàng theo.',
+  'Lời hứa với bản thân năm nay, bạn sẽ giữ được.',
+  'Trăng tròn rồi lại khuyết. Vui buồn đều qua, cứ an nhiên.',
+  'Bạn sẽ có thêm một người bạn mới đáng quý.',
+  'Mỗi việc tử tế bạn làm đều được ai đó ghi nhớ.',
+  'Hôm nay là ngày đẹp để bắt đầu một thói quen tốt.',
+];
+let motionHandler = null;
+ACT.fortune = {
+  start(a) {
+    focus(5.25, 1.4, -15.4, -PI / 2 + 0.06, 5.2, 0.3, -0.9); P.pose = 'pray';
+    // xin quyền cảm biến lắc trên iPhone (trong cú chạm của người chơi)
+    try { if (window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') DeviceMotionEvent.requestPermission().catch(() => {}); } catch (e) {}
+    fortuneShake(a);
+  },
+  update(a, dt) {
+    const d = a.d; if (d.phase !== 'shake') return;
+    const tube = $('#tube'); if (!tube) return;
+    const shaking = d.hold || d.motionT > 0; d.motionT -= dt;
+    tube.classList.toggle('shaking', shaking);
+    if (shaking) { d.prog += dt / 1.7; d.rt -= dt; if (d.rt <= 0) { d.rt = 0.085; Sound.rattle(); } }
+    $('#shakeBar').style.width = Math.min(100, d.prog * 100) + '%';
+    if (d.prog >= 1) { d.phase = 'fall'; tube.classList.remove('shaking'); $('#fallStick').classList.add('go'); Sound.knock(null, 0.35); setTimeout(() => fortuneReveal(a), 1050); }
+  },
+  end() { if (motionHandler) { removeEventListener('devicemotion', motionHandler); motionHandler = null; } }
+};
+function fortuneShake(a) {
+  Object.assign(a.d, { phase: 'shake', prog: 0, hold: false, motionT: 0, rt: 0, last: null });
+  const sticksHtml = Array.from({ length: 9 }, (_, i) => `<div class="stk" style="left:${12 + i * 7.5}px;transform:rotate(${(i - 4) * 3}deg);height:${88 + (i % 3) * 8}px"></div>`).join('');
+  openPanel(`<h3>📜 Xin quẻ đầu năm</h3><p class="small">Nhắm mắt, nghĩ về điều mong ước. Lắc điện thoại, hoặc chạm và giữ ống xăm.</p>
+    <div class="tube-wrap" id="tubeWrap"><div class="tube" id="tube">${sticksHtml}<div class="tube-body">AN<br>LẠC</div></div><div class="fall" id="fallStick"></div></div>
+    <div class="bar"><i id="shakeBar"></i></div><p class="tiny">Mang tính giải trí</p>`);
+  const tw = $('#tubeWrap');
+  tw.addEventListener('pointerdown', e => { e.preventDefault(); a.d.hold = true; try { tw.setPointerCapture(e.pointerId); } catch (er) {} });
+  const up = () => { a.d.hold = false; }; tw.addEventListener('pointerup', up); tw.addEventListener('pointercancel', up); tw.addEventListener('pointerleave', up);
+  if (motionHandler) removeEventListener('devicemotion', motionHandler);
+  motionHandler = e => { const g = e.accelerationIncludingGravity || e.acceleration; if (!g || g.x == null) return; const d = a.d; if (d.last) { const ch = Math.abs(g.x - d.last[0]) + Math.abs(g.y - d.last[1]) + Math.abs(g.z - d.last[2]); if (ch > 14) d.motionT = 0.35; } d.last = [g.x, g.y, g.z]; };
+  addEventListener('devicemotion', motionHandler);
+}
+function fortuneReveal(a) {
+  if (!activity || activity !== a) return;
+  const no = randi(1, FORTUNES.length), msg = FORTUNES[no - 1];
+  Save.data.fortunes.unshift({ no, text: msg, ts: Date.now() }); Save.data.fortunes = Save.data.fortunes.slice(0, 100); Save.save();
+  Sound.chime(); a.d.phase = 'done';
+  openPanel(`<h3>📜 Quẻ của bạn</h3><div class="que"><div class="no">Quẻ số ${no}</div><div class="msg">${escapeHtml(msg)}</div><div style="font-size:12px;opacity:.85">Mang tính giải trí</div></div>
+    <p class="small" style="text-align:center">Quẻ đã được ghi vào Sổ cầu an của bạn.</p>
+    <div class="row"><button class="btn" id="fAgain">Xin quẻ khác</button><button class="btn primary" data-close>Xong</button></div>`);
+  $('#fAgain').addEventListener('click', () => fortuneShake(a));
+}
+
+/* =========================================================
+   9. SỔ CẦU AN CỦA TÔI
+   ========================================================= */
+function openBook() {
+  if (activity) endActivity();
+  const D = Save.data;
+  const pr = D.prayers.length ? D.prayers.map(p => `<li>${p.type === 'lantern' ? '🏮' : '🎗️'} ${escapeHtml(p.text)}<small>${p.type === 'lantern' ? 'Đèn hoa đăng · hồ sen' : 'Dải lụa · cây bồ đề'} · ${fmtDate(p.ts)}</small></li>`).join('') : '<li class="empty">Chưa có lời cầu nào. Hãy ghé cây bồ đề hoặc hồ sen nhé.</li>';
+  const fo = D.fortunes.length ? D.fortunes.slice(0, 30).map(f => `<li>📜 <b>Quẻ số ${f.no}</b> — ${escapeHtml(f.text)}<small>${fmtDate(f.ts)} · mang tính giải trí</small></li>`).join('') : '<li class="empty">Chưa xin quẻ nào.</li>';
+  $('#bookCard').innerHTML = `<button class="x" id="bookClose" aria-label="Đóng">✕</button><h2>📖 Sổ cầu an của tôi</h2>
+    <div style="display:flex;gap:8px;align-items:center"><input id="bookName" maxlength="20" value="${escapeHtml(D.name)}" style="flex:1;padding:9px 12px;border-radius:10px;border:2px solid #d9b77a;font-size:15px;background:#fff;color:var(--ink)"><button class="btn" id="bookSaveName" style="padding:9px 12px">Đổi tên</button></div>
+    <div class="stats"><div class="stat"><b>${D.incense}</b><span>lần thắp hương</span></div><div class="stat"><b>${D.best}</b><span>Tâm an cao nhất</span></div><div class="stat"><b>${D.bells}</b><span>lần thỉnh chuông</span></div></div>
+    <h3 class="serif" style="color:var(--red2);margin:10px 0 0">Lời cầu đã viết (${D.prayers.length})</h3><ul class="list">${pr}</ul>
+    <h3 class="serif" style="color:var(--red2);margin:10px 0 0">Quẻ đã xin (${D.fortunes.length})</h3><ul class="list">${fo}</ul>
+    <div class="row"><button class="btn primary" id="bookShare">📤 Chia sẻ</button><button class="btn" id="bookTut">Xem hướng dẫn</button></div>
+    <p class="tiny" style="margin-top:10px">Sổ chỉ lưu trên máy này. Lời cầu là để gửi gắm tâm nguyện và nhắc mình sống thiện lành — trò chơi không hứa hẹn điều gì chắc chắn linh nghiệm.</p>`;
+  $('#bookModal').classList.add('on');
+  $('#bookClose').onclick = closeBook;
+  $('#bookSaveName').onclick = () => { const n = $('#bookName').value.trim().slice(0, 20); if (n) { D.name = n; Save.save(); refreshHud(); toast('Đã đổi tên thành ' + n); } };
+  $('#bookShare').onclick = () => { closeBook(); openShare(); };
+  $('#bookTut').onclick = () => { closeBook(); showTutorial(); };
+}
+function closeBook() { $('#bookModal').classList.remove('on'); }
+$('#bookModal').addEventListener('click', e => { if (e.target.id === 'bookModal') closeBook(); });
+
+/* =========================================================
+   10. CHIA SẺ: vẽ ảnh dọc 1080×1350 bằng canvas
+   ========================================================= */
+let lastScore = null, shareBlob = null, shareURL = null;
+const shareCam = new THREE.PerspectiveCamera(50, 1, 0.1, 700);
+function wrapText(g, text, maxW) { const words = String(text).split(/\s+/); const lines = []; let cur = ''; for (const w of words) { const t = cur ? cur + ' ' + w : w; if (g.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; } if (cur) lines.push(cur); return lines; }
+function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+function snapshot(w, h) {
+  const oldPR = renderer.getPixelRatio(), sz = renderer.getSize(new THREE.Vector2());
+  shareCam.aspect = w / h; shareCam.position.set(7, 5.2, 23); shareCam.lookAt(0, 3.4, -12); shareCam.updateProjectionMatrix();
+  const vis = SPOTS.map(s => s.sprite.visible); SPOTS.forEach(s => s.sprite.visible = false);
+  renderer.setPixelRatio(1); renderer.setSize(w, h, false); ptsUScale.value = h / (2 * Math.tan(25 * PI / 180));
+  sky.position.copy(shareCam.position);
+  renderer.render(scene, shareCam);
+  const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(renderer.domElement, 0, 0, w, h);
+  renderer.setPixelRatio(oldPR); renderer.setSize(sz.x, sz.y, false); onResize();
+  SPOTS.forEach((s, i) => s.sprite.visible = vis[i]);
+  sky.position.copy(camera.position); renderer.render(scene, camera);
+  return c;
+}
+function makeShareCanvas() {
+  const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+  const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#2b1a2e'); bg.addColorStop(1, '#5c2620'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  const shot = snapshot(1000, 760);
+  g.save(); rr(g, 40, 40, 1000, 760, 34); g.clip(); g.drawImage(shot, 40, 40); g.restore();
+  g.lineWidth = 6; g.strokeStyle = '#e9b85a'; rr(g, 40, 40, 1000, 760, 34); g.stroke();
+  // biển nhỏ
+  g.fillStyle = 'rgba(122,28,18,.92)'; rr(g, 70, 70, 300, 74, 16); g.fill(); g.strokeStyle = '#f3c969'; g.lineWidth = 3; rr(g, 70, 70, 300, 74, 16); g.stroke();
+  g.fillStyle = '#f8d77a'; g.font = 'bold 40px "Times New Roman","Times New Roman",serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('Chùa An Lạc', 220, 109);
+  // thẻ giấy
+  const cy = 830, ch = 480;
+  const pg = g.createLinearGradient(0, cy, 0, cy + ch); pg.addColorStop(0, '#fff8ea'); pg.addColorStop(1, '#f3dfb6'); g.fillStyle = pg; rr(g, 40, cy, 1000, ch, 34); g.fill();
+  g.strokeStyle = '#d9a849'; g.lineWidth = 4; rr(g, 52, cy + 12, 976, ch - 24, 26); g.stroke();
+  // hoa sen nhỏ
+  const lotus = (x, y, s) => { g.save(); g.translate(x, y); g.scale(s, s); g.fillStyle = '#f29ab2'; g.strokeStyle = '#b8475f'; g.lineWidth = 2; for (const a of [-0.9, -0.45, 0, 0.45, 0.9]) { g.save(); g.rotate(a); g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(14, -30, 0, -58); g.quadraticCurveTo(-14, -30, 0, 0); g.fill(); g.stroke(); g.restore(); } g.restore(); };
+  lotus(540, cy + 78, 0.9);
+  const D = Save.data; const name = D.name || 'Phật tử';
+  g.textAlign = 'center'; g.fillStyle = '#8e1f15'; g.font = 'bold 54px "Times New Roman","Times New Roman",serif'; g.fillText(name, 540, cy + 120);
+  g.fillStyle = '#6a4024'; g.font = '30px "Times New Roman",serif'; g.fillText('đã lên chùa cầu an', 540, cy + 168);
+  const prayer = D.prayers[0] ? D.prayers[0].text : 'Cầu mong mọi người bình an, mạnh khoẻ.';
+  g.font = 'italic 40px "Times New Roman","Times New Roman",serif'; g.fillStyle = '#3a2412';
+  let lines = wrapText(g, '“' + prayer + '”', 880); if (lines.length > 4) { lines = lines.slice(0, 4); lines[3] = lines[3].replace(/\s*\S*$/, '') + '…”'; }
+  const ly = cy + 236; lines.forEach((l, i) => g.fillText(l, 540, ly + i * 52));
+  const score = lastScore != null ? lastScore : D.best;
+  const by = cy + ch - 92;
+  g.fillStyle = '#b3261e'; rr(g, 300, by - 36, 480, 72, 36); g.fill();
+  g.fillStyle = '#ffe9b0'; g.font = 'bold 38px "Times New Roman",serif'; g.fillText(`Tâm an: ${score}/100`, 540, by + 2);
+  g.fillStyle = '#f3c969'; g.font = 'bold 30px "Times New Roman",serif'; g.fillText('LÊN CHÙA CẦU AN', 540, H - 22);
+  g.fillStyle = '#7a5a3a'; g.font = '22px system-ui,sans-serif'; g.fillText(new Date().toLocaleDateString('vi-VN'), 540, by + 64);
+  return c;
+}
+function openShare() {
+  if (activity) endActivity();
+  closeBook();
+  if (shareURL) { URL.revokeObjectURL(shareURL); shareURL = null; }
+  const c = makeShareCanvas();
+  c.toBlob(b => {
+    shareBlob = b; if (!b) { toast('Máy chưa tạo được ảnh, bạn thử lại nhé.'); return; }
+    shareURL = URL.createObjectURL(b); $('#shareImg').src = shareURL; $('#shareModal').classList.add('on');
+    const file = new File([b], 'len-chua-cau-an.png', { type: 'image/png' });
+    const can = !!(navigator.canShare && navigator.canShare({ files: [file] }));
+    $('#doShare').style.display = can ? '' : 'none';
+    c.width = c.height = 0; // giải phóng canvas
+  }, 'image/png');
+}
+function closeShare() { $('#shareModal').classList.remove('on'); $('#shareImg').removeAttribute('src'); if (shareURL) { URL.revokeObjectURL(shareURL); shareURL = null; } shareBlob = null; }
+$('#doShare').addEventListener('click', async () => {
+  if (!shareBlob) return; const file = new File([shareBlob], 'len-chua-cau-an.png', { type: 'image/png' });
+  try { await navigator.share({ files: [file], title: 'Lên Chùa Cầu An', text: 'Mình vừa lên Chùa An Lạc cầu an 🙏' }); } catch (e) { if (e && e.name !== 'AbortError') downloadShare(); }
+});
+function downloadShare() { if (!shareBlob) return; const u = URL.createObjectURL(shareBlob); const a = document.createElement('a'); a.href = u; a.download = 'len-chua-cau-an.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 3000); toast('Đã tải ảnh xuống máy 🌸'); }
+$('#doDownload').addEventListener('click', downloadShare);
+document.querySelector('[data-close-share]').addEventListener('click', closeShare);
+$('#shareModal').addEventListener('click', e => { if (e.target.id === 'shareModal') closeShare(); });
+
+/* =========================================================
+   11. MÀN CHÀO, HƯỚNG DẪN, HUD
+   ========================================================= */
+let entered = false;
+function refreshHud() { $('#visitCount').textContent = visitCount.toLocaleString('vi-VN'); $('#hudName').textContent = '🙏 ' + (Save.data.name || 'Phật tử'); $('#hudBest').textContent = Save.data.best; }
+$('#muteBtn').textContent = Sound.muted ? '🔇' : '🔊';
+$('#muteBtn').addEventListener('click', () => { Sound.init(); Sound.setMuted(!Sound.muted); Save.data.muted = Sound.muted; Save.save(); $('#muteBtn').textContent = Sound.muted ? '🔇' : '🔊'; });
+$('#bookBtn').addEventListener('click', () => { Sound.tick(); openBook(); });
+$('#shareBtn').addEventListener('click', () => { Sound.tick(); lastScore = null; openShare(); });
+const TUT = [
+  { ic: isTouch ? '🕹️' : '⌨️', t: 'Đi lại', d: isTouch ? 'Đặt ngón tay ở nửa trái phía dưới màn hình rồi kéo để đi. Kéo ở chỗ khác để xoay góc nhìn.' : 'Dùng WASD hoặc phím mũi tên để đi. Giữ chuột và kéo để xoay góc nhìn, lăn chuột để gần xa.' },
+  { ic: '🚶', t: 'Tới gần', d: 'Đi đến lư hương, gác chuông, cây bồ đề, hồ sen, hoặc vào chính điện (mõ và ống xăm). Biển vàng nổi lên chỉ đường cho bạn.' },
+  { ic: '👆', t: 'Chạm nút hành động', d: 'Khi nút đỏ to hiện ở góc phải, chạm một lần để bắt đầu' + (isTouch ? '.' : ' (hoặc phím E / Space).') },
+];
+function showTutorial(step = 0) {
+  const s = TUT[step];
+  $('#tutCard').innerHTML = `<h2>Hướng dẫn ${step + 1}/3 · ${s.t}</h2><div class="tut-ic">${s.ic}</div><p style="font-size:16px;line-height:1.5">${s.d}</p><div class="tut-dots">${TUT.map((_, i) => i === step ? '●' : '○').join('')}</div>
+    <div class="row"><button class="btn" id="tutSkip">Bỏ qua</button><button class="btn primary" id="tutNext">${step < 2 ? 'Tiếp →' : 'Bắt đầu'}</button></div>`;
+  $('#tutModal').classList.add('on');
+  const done = () => { $('#tutModal').classList.remove('on'); Save.data.tutorial = true; Save.save(); };
+  $('#tutSkip').onclick = () => { Sound.tick(); done(); };
+  $('#tutNext').onclick = () => { Sound.tick(); if (step < 2) showTutorial(step + 1); else done(); };
+}
+const nameInput = $('#nameInput'); nameInput.value = Save.data.name || '';
+function enterTemple() {
+  Sound.init();
+  const n = nameInput.value.trim().slice(0, 20) || Save.data.name || 'Phật tử'; Save.data.name = n; Save.save();
+  entered = true; visitCount++; refreshHud();
+  $('#splash').classList.add('hide'); setTimeout(() => { $('#splash').style.display = 'none'; }, 800);
+  $('#hud').style.display = 'flex';
+  if (isTouch) { joyZone.style.display = 'block'; joyBase.style.display = 'block'; joyDefault(); } else $('#deskHint').style.display = 'block';
+  setTimeout(() => { $('#deskHint').style.display = 'none'; }, 14000);
+  if (!Save.data.tutorial) setTimeout(() => showTutorial(0), 900); else toast('Chào ' + n + ', chúc bạn một buổi chiều an lạc 🙏');
+}
+$('#enterBtn').addEventListener('click', enterTemple);
+nameInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !$('#enterBtn').disabled) enterTemple(); });
+
+/* =========================================================
+   12. CHU KỲ HOÀNG HÔN → ĐÊM, VÒNG LẶP CHÍNH
+   ========================================================= */
+const KEYS = [ // t, đỉnh trời, chân trời, nắng, cường độ, trời bán cầu, đất bán cầu, cường độ, sương
+  [0.0, 0x5468b0, 0xffa060, 0xffb27a, 2.3, 0xffd9b0, 0x6a4a3a, 1.1, 0xe7a47e],
+  [0.45, 0x30306e, 0xd96a6a, 0xff8a6a, 1.1, 0xb48ab8, 0x3e2e3e, 0.85, 0x9a6680],
+  [1.0, 0x070b24, 0x1b2452, 0x8fa8ff, 0.55, 0x5a6aa8, 0x1c1828, 0.6, 0x161c3a],
+];
+const _ca = new THREE.Color(), _cb = new THREE.Color(), _sunDir = new THREE.Vector3(), _moonDir = new THREE.Vector3(0.35, 0.85, -0.4).normalize();
+function lerpKey(idx, t, out) { let a = KEYS[0], b = KEYS[1]; if (t > KEYS[1][0]) { a = KEYS[1]; b = KEYS[2]; } const k = clamp((t - a[0]) / (b[0] - a[0]), 0, 1); _ca.set(a[idx]); _cb.set(b[idx]); return out.copy(_ca).lerp(_cb, k); }
+function lerpNum(idx, t) { let a = KEYS[0], b = KEYS[1]; if (t > KEYS[1][0]) { a = KEYS[1]; b = KEYS[2]; } return lerp(a[idx], b[idx], clamp((t - a[0]) / (b[0] - a[0]), 0, 1)); }
+const DAY_LEN = 300; let dayT = 0.03, night = 0;
+function updateDay(dt) {
+  if (entered) dayT = Math.min(1, dayT + dt / DAY_LEN);
+  const t = dayT; night = smooth(0.35, 0.95, t);
+  lerpKey(1, t, skyU.uTop.value); lerpKey(2, t, skyU.uHor.value); lerpKey(3, t, skyU.uSun.value);
+  const el = lerp(0.16, -0.2, smooth(0, 0.7, t)); _sunDir.set(-0.85, el, 0.5).normalize(); skyU.uSunDir.value.copy(_sunDir); skyU.uSunAmt.value = 1 - smooth(0.4, 0.75, t);
+  lerpKey(3, t, sun.color); sun.intensity = lerpNum(4, t) * (t < 0.6 ? 1 - smooth(0.45, 0.6, t) * 0.6 : 0.4 + smooth(0.6, 0.8, t) * 0.6);
+  const ld = t < 0.6 ? _sunDir.set(-0.85, Math.max(0.12, el + 0.1), 0.5).normalize() : _moonDir;
+  sun.target.position.set(P.x, 0, P.z); sun.position.copy(sun.target.position).addScaledVector(ld, 70);
+  lerpKey(5, t, hemi.color); lerpKey(6, t, hemi.groundColor); hemi.intensity = lerpNum(7, t);
+  lerpKey(8, t, scene.fog.color);
+  starMat.opacity = smooth(0.55, 1, t); moonMat.opacity = smooth(0.5, 0.9, t);
+  const flick = 0.92 + 0.08 * Math.sin(time * 7.3) * Math.sin(time * 3.1);
+  lanternMat.emissiveIntensity = (0.45 + 0.75 * night) * flick;
+  yardLight.intensity = night * 40 * flick; gateLight.intensity = night * 30 * flick; hallLight.intensity = (22 + 18 * night) * flick;
+  for (const sp of lanternGlows) { const f = 0.85 + 0.15 * Math.sin(time * 5 + sp.userData.ph) * Math.sin(time * 2.3 + sp.userData.ph * 2); sp.material.opacity = (0.18 + 0.42 * night) * f; sp.scale.setScalar(1.2 + 0.8 * night * f); }
+  renderer.toneMappingExposure = 1.08 + night * 0.12;
+}
+let time = 0, aiStickT = 0;
+const clock = new THREE.Clock();
+let fpsAcc = 0, fpsN = 0;
+function onResize() {
+  renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  ptsUScale.value = renderer.domElement.height / (2 * Math.tan(camera.fov * PI / 360));
+  if (isTouch && entered && joy.id === null) joyDefault();
+}
+addEventListener('resize', onResize); onResize();
+function loop() {
+  requestAnimationFrame(loop);
+  const dt = Math.min(clock.getDelta(), 0.05); time += dt;
+  updateDay(dt);
+  updatePlayer(dt);
+  if (activity && ACT[activity.id].update) ACT[activity.id].update(activity, dt);
+  updateCamera(dt);
+  sky.position.copy(camera.position);
+  updatePilgrims(dt);
+  aiStickT -= dt; if (aiStickT <= 0) { aiStickT = 3; if (sticks.filter(s => s.on).length < 18) addSticksRandom(1, rand(60, 120)); }
+  const nAct = updateSticks(dt);
+  updateSmoke(dt, nAct, night); updateFireflies(night); updatePetals(dt); updateRibbons(); updateLanternsHD(dt, night); updateBellObj(dt);
+  for (const r of playerRibbons) { r.rotation.x = Math.sin(time * 1.4 + r.userData.ph) * 0.12; }
+  updateSpots(); updateBubbles(dt);
+  if (entered) $('#visitCount').textContent = visitCount.toLocaleString('vi-VN');
+  const dh = Math.hypot(P.x, P.z + 16); Sound.update(dt, smooth(20, 4, dh), night);
+  renderer.render(scene, camera);
+  // tự hạ độ phân giải nếu máy yếu
+  fpsAcc += dt; fpsN++;
+  if (fpsAcc > 3) { const fps = fpsN / fpsAcc; fpsAcc = 0; fpsN = 0; if (fps < 38 && pixelRatio > 1) { pixelRatio = Math.max(1, pixelRatio - 0.5); renderer.setPixelRatio(pixelRatio); onResize(); } }
+}
+
+initPilgrims();
+addSticksRandom(16, 100); for (const s of sticks) if (s.on) s.life = rand(0, 60);
+refreshHud();
+updateCamera(0.016, true);
+loop();
+window.__chuaReady = true;
+const eb = $('#enterBtn'); eb.disabled = false; eb.textContent = 'Vào chùa 🙏'; $('#loadMsg').textContent = '';
+// móc nhỏ để tự kiểm thử trong console
+window.__game = { P, Save, startActivity, endActivity, openShare, openBook, get activity() { return activity; }, pils, SPOTS, get dayT() { return dayT; }, set dayT(v) { dayT = v; } };
+</script>
+</body>
+</html>
