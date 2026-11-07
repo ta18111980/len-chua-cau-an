@@ -159,7 +159,7 @@ textarea{width:100%;border-radius:12px;border:2px solid #d9b77a;padding:10px;fon
     </g>
   </svg>
   <h1>Lên Chùa Cầu An</h1>
-  <div class="sub">Chùa An Lạc · một buổi hoàng hôn thanh tịnh</div>
+  <div class="sub">Chùa Ái Mộ · một buổi hoàng hôn thanh tịnh</div>
   <label for="nameInput">Tên của bạn</label>
   <input id="nameInput" maxlength="20" placeholder="Ví dụ: Tuấn Anh" autocomplete="off">
   <button id="enterBtn" disabled>Đang mở cổng chùa…</button>
@@ -543,7 +543,7 @@ function buildWorld() {
   roof(0, 6.5, GZ, 4.6, 2.6, 1.1, 0.4, 0.5, true);
   for (const s of [-1, 1]) roof(s * 4.7, 3.7, GZ, 4.6, 3.0, 1.0, 0.45, 0.45);
   // Biển tên chùa
-  const gateSign = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 0.9), (() => { const t = signTex('CHÙA AN LẠC'); return new THREE.MeshLambertMaterial({ map: t, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.3 }); })());
+  const gateSign = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 0.9), (() => { const t = signTex('CHÙA ÁI MỘ'); return new THREE.MeshLambertMaterial({ map: t, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.3 }); })());
   gateSign.position.set(0, 4.25, GZ + 0.72); scene.add(gateSign);
   const gateSign2 = gateSign.clone(); gateSign2.position.z = GZ - 0.72; gateSign2.rotation.y = PI; scene.add(gateSign2);
 
@@ -1556,7 +1556,7 @@ function makeShareCanvas() {
   g.lineWidth = 6; g.strokeStyle = '#e9b85a'; rr(g, 40, 40, 1000, 760, 34); g.stroke();
   // biển nhỏ
   g.fillStyle = 'rgba(122,28,18,.92)'; rr(g, 70, 70, 300, 74, 16); g.fill(); g.strokeStyle = '#f3c969'; g.lineWidth = 3; rr(g, 70, 70, 300, 74, 16); g.stroke();
-  g.fillStyle = '#f8d77a'; g.font = 'bold 40px "Times New Roman","Times New Roman",serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('Chùa An Lạc', 220, 109);
+  g.fillStyle = '#f8d77a'; g.font = 'bold 40px "Times New Roman","Times New Roman",serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('Chùa Ái Mộ', 220, 109);
   // thẻ giấy
   const cy = 830, ch = 480;
   const pg = g.createLinearGradient(0, cy, 0, cy + ch); pg.addColorStop(0, '#fff8ea'); pg.addColorStop(1, '#f3dfb6'); g.fillStyle = pg; rr(g, 40, cy, 1000, ch, 34); g.fill();
@@ -1596,7 +1596,7 @@ function openShare() {
 function closeShare() { $('#shareModal').classList.remove('on'); $('#shareImg').removeAttribute('src'); if (shareURL) { URL.revokeObjectURL(shareURL); shareURL = null; } shareBlob = null; }
 $('#doShare').addEventListener('click', async () => {
   if (!shareBlob) return; const file = new File([shareBlob], 'len-chua-cau-an.png', { type: 'image/png' });
-  try { await navigator.share({ files: [file], title: 'Lên Chùa Cầu An', text: 'Mình vừa lên Chùa An Lạc cầu an 🙏' }); } catch (e) { if (e && e.name !== 'AbortError') downloadShare(); }
+  try { await navigator.share({ files: [file], title: 'Lên Chùa Cầu An', text: 'Mình vừa lên Chùa Ái Mộ cầu an 🙏' }); } catch (e) { if (e && e.name !== 'AbortError') downloadShare(); }
 });
 function downloadShare() { if (!shareBlob) return; const u = URL.createObjectURL(shareBlob); const a = document.createElement('a'); a.href = u; a.download = 'len-chua-cau-an.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 3000); toast('Đã tải ảnh xuống máy 🌸'); }
 $('#doDownload').addEventListener('click', downloadShare);
