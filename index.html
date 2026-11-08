@@ -119,6 +119,7 @@ button{font-family:inherit;cursor:pointer}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 
 /* ---- Bong bóng chữ của khách AI ---- */
+#nameTag{position:fixed;left:0;top:0;z-index:4;display:none;pointer-events:none;padding:4px 12px;border-radius:12px;font-size:13px;font-weight:700;color:#ffe7b0;background:rgba(36,16,22,.62);border:1px solid rgba(243,201,105,.55);white-space:nowrap;will-change:transform;text-shadow:0 1px 4px #000}
 .bubble{position:fixed;left:0;top:0;z-index:4;background:#fffaf0;color:#5a2a14;padding:5px 10px;border-radius:14px;font-size:12.5px;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.25);pointer-events:none;opacity:0;transition:opacity .35s;will-change:transform}
 .bubble::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:#fffaf0}
 .bubble.on{opacity:.95}
@@ -273,6 +274,7 @@ textarea{width:100%;border-radius:12px;border:2px solid #d9b77a;padding:10px;fon
 <button id="actionBtn"><span class="ic" id="actIcon">🕯️</span><span id="actLabel">Thắp hương</span></button>
 <div id="toast"></div>
 <div id="bubbles"></div>
+<div id="nameTag"></div>
 
 <div id="panel"><div id="sheet"></div></div>
 
@@ -1170,9 +1172,10 @@ const GEO_DEF = {
   neck: () => new THREE.CylinderGeometry(0.04, 0.046, 0.13, 12).translate(0, 0.045, 0),
   ears: () => pair(s => ell(0.012, 0.026, 0.018, s * 0.093, 0, 0, 8, 6)),
   nose: () => ell(0.0085, 0.014, 0.011, 0, 0, 0, 8, 6),
-  eyeW: () => pair(s => ell(0.0155, 0.0095, 0.006, s * 0.034, 0, 0, 10, 8)),
-  iris: () => pair(s => ell(0.0085, 0.0092, 0.004, s * 0.034, 0, 0.0045, 8, 6)),
-  brows: () => pair(s => ell(0.017, 0.0035, 0.004, s * 0.035, 0, 0, 8, 4, -s * 0.12)),
+  eyeW: () => pair(s => ell(0.018, 0.0115, 0.006, s * 0.035, 0, 0, 12, 8)),
+  eyeHi: () => pair(s => ell(0.0028, 0.0028, 0.002, s * 0.035 + 0.003, 0.003, 0.0095, 6, 4)),
+  iris: () => pair(s => ell(0.0098, 0.0105, 0.004, s * 0.035, 0, 0.0045, 10, 8)),
+  brows: () => pair(s => ell(0.02, 0.0048, 0.005, s * 0.036, 0, 0, 10, 4, -s * 0.14)),
   mouth: () => new THREE.TorusGeometry(0.016, 0.0034, 5, 14, PI * 0.85).rotateZ(-PI * 0.925).translate(0, 0.016, 0),
   mouthO: () => ell(0.009, 0.0075, 0.004, 0, 0, 0, 8, 6),
   blush: () => pair(s => ell(0.013, 0.007, 0.003, s * 0.052, 0, 0, 8, 6)),
@@ -1245,8 +1248,8 @@ function buildParts(sp) {
   const add = (node, geo, slot, extra) => L.push(Object.assign({ node, geo, slot, m: new THREE.Matrix4() }, extra));
   add('head', 'head', 'skin'); add('neck', 'neck', 'skin');
   add('head', 'ears', 'skin', { pos: [0, 0.115, 0], ns: 1 }); add('head', 'nose', 'skin', { pos: [0, 0.098, 0.104], ns: 1 });
-  add('head', 'eyeW', 'eyeW', { pos: [0, 0.124, 0.094], dyn: 'eye', ns: 1 }); add('head', 'iris', 'iris', { pos: [0, 0.124, 0.094], dyn: 'eye', ns: 1 });
-  add('head', 'brows', 'hair', { pos: [0, 0.147, 0.097], dyn: 'brow', ns: 1 });
+  add('head', 'eyeW', 'eyeW', { pos: [0, 0.124, 0.094], dyn: 'eye', ns: 1 }); add('head', 'iris', 'iris', { pos: [0, 0.124, 0.094], dyn: 'eye', ns: 1 }); add('head', 'eyeHi', 'eyeW', { pos: [0, 0.124, 0.094], dyn: 'eye', ns: 1 });
+  add('head', 'brows', 'hair', { pos: [0, 0.15, 0.097], dyn: 'brow', ns: 1 });
   add('head', 'mouth', 'lip', { pos: [0, 0.042, 0.089], dyn: 'smile', ns: 1 }); add('head', 'mouthO', 'mouthIn', { pos: [0, 0.056, 0.087], dyn: 'open', ns: 1 });
   if (f) add('head', 'blush', 'blush', { pos: [0, 0.09, 0.077], ns: 1 });
   for (const h of (HAIRS[sp.hair] || HAIRS.short).parts) add('head', h, 'hair');
@@ -2364,6 +2367,7 @@ function loop() {
   updateSmoke(dt, nAct, night); updateFireflies(night); updatePetals(dt); updateRibbons(); updateLanternsHD(dt, night); updateBellObj(dt);
   for (const r of playerRibbons) { r.rotation.x = Math.sin(time * 1.4 + r.userData.ph) * 0.12; }
   updateSpots(); updateBubbles(dt);
+  { const nt = $('#nameTag'); if (mode === 'play' && !activity && PC) { _bv.set(P.x, P.y + 1.92 * PC.spec.scale, P.z).project(camera); if (_bv.z < 1) { if (nt.textContent !== (Save.data.name || 'Phật tử')) nt.textContent = Save.data.name || 'Phật tử'; nt.style.display = 'block'; nt.style.transform = `translate(${(_bv.x * 0.5 + 0.5) * innerWidth}px,${(-_bv.y * 0.5 + 0.5) * innerHeight}px) translate(-50%,-100%)`; } else nt.style.display = 'none'; } else nt.style.display = 'none'; }
   if (entered) $('#visitCount').textContent = visitCount.toLocaleString('vi-VN');
   const dh = Math.hypot(P.x, P.z + 16); Sound.update(dt, smooth(20, 4, dh), night);
   renderer.render(scene, camera);
